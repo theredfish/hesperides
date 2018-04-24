@@ -1,12 +1,11 @@
 package org.hesperides.batch.redis;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.hesperides.batch.LegacyEvent;
 import org.hesperides.batch.LegacyModule;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.security.User;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -19,6 +18,14 @@ public class LegacyModuleCreatedEvent implements LegacyInterface {
     @SerializedName("moduleCreated")
     LegacyModule module;
 
-    Template[] templates;
+    @SerializedName("templates")
+    TemplateContainer templateContainer;
+
+    public Module toDomainModule(){
+        return new Module(module.getKey(),
+               templateContainer.getTemplates(),
+               module.getTechnos(),
+                module.getVersionId())
+    }
 
 }

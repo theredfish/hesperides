@@ -10,8 +10,10 @@ import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.messaging.MetaData;
 import org.hesperides.batch.redis.*;
 import org.hesperides.domain.modules.ModuleCreatedEvent;
+import org.hesperides.domain.modules.TemplateCreatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.security.User;
+import org.hibernate.engine.jdbc.batch.spi.Batch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -26,8 +28,10 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
+import org.hesperides.domain.Profiles;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
+import static org.hesperides.domain.Profiles.BIATCH;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -86,12 +90,15 @@ public class Unnamed {
         Gson gson = new Gson();
         GenericEventMessage eventMessage;
         GenericDomainEventMessage domainEventMessage = null;
+
+
         switch (event.getEventType()){
             case LegacyModuleCreatedEvent.EVENT_TYPE :
                 LegacyModuleCreatedEvent lmce = gson.fromJson(event.data,LegacyModuleCreatedEvent.class);
-                ModuleCreatedEvent forged = new ModuleCreatedEvent(new Module(lmce.getModule().getKey(),lmce.getModule().getTechnos(),lmce.getModule().getVersionId()),new User(event.user));
+                ModuleCreatedEvent forged = new ModuleCreatedEvent(lmce.toDomainModule(),new User(event.user));
+                Module module = lmce.toDomainModule();
                 eventMessage = new GenericEventMessage(forged,MetaData.emptyInstance());
-                domainEventMessage = new GenericDomainEventMessage("ModuleAggregate",lmce.getModule().getKey().toString(),index,eventMessage,supplier);
+                domainEventMessage = new GenericDomainEventMessage("ModuleAggregate",eventMessage.getIdentifier(),index,eventMessage,supplier);
                 break;
             case LegacyModuleUpdatedEvent.EVENT_TYPE :
 //                LegacyTemplateCreatedEvent chier =  gson.fromJson(event.data,LegacyTemplateCreatedEvent.class);
@@ -102,8 +109,8 @@ public class Unnamed {
 
             case LegacyTemplateCreatedEvent.EVENT_TYPE:
                 LegacyTemplateCreatedEvent ltce = gson.fromJson(event.data,LegacyTemplateCreatedEvent.class);
-                Module
-                eventMessage = new GenericEventMessage()
+                TemplateCreatedEvent tce = new TemplateCreatedEvent();
+                eventMessage = new GenericEventMessage();
                 break;
             case LegacyTemplateUpdatedEvent.EVENT_TYPE:
                 break;

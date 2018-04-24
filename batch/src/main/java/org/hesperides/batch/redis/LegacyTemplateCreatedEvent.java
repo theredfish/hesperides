@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.batch.LegacyModule;
 import org.hesperides.batch.LegacyTemplate;
-import org.hesperides.domain.modules.entities.Template;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;

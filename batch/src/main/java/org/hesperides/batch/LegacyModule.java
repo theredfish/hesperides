@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Techno;
-import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.technos.entities.Techno;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
