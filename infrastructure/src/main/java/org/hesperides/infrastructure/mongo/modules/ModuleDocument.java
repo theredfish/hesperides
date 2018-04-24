@@ -1,26 +1,21 @@
 package org.hesperides.infrastructure.mongo.modules;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-public class ModuleDocument {
+import java.util.List;
 
+@Document(collection = "module")
+@Data
+public class ModuleDocument {
     @Id
     String id;
-
     String name;
     String version;
     Module.Type versionType;
     Long versionId;
-
+    List<TemplateDocument> templates;
 }

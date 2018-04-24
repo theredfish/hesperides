@@ -7,12 +7,12 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateMember;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
-import org.hesperides.domain.modules.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.domain.templatecontainer.entities.Template;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -45,24 +45,26 @@ class ModuleAggregate implements Serializable {
         // Initialise le version_id
         Module module = new Module(
                 command.getModule().getKey(),
+                command.getModule().getTemplates(),
                 command.getModule().getTechnos(),
                 1L);
         apply(new ModuleCreatedEvent(module, command.getUser()));
     }
 
     @CommandHandler
-    public ModuleAggregate(UpdateModuleCommand command) {
+    public void updateModule(UpdateModuleCommand command) {
         log.debug("Applying update module command...");
         // Met à jour le version_id
         Module moduleWithUpdatedVersionId = new Module(
                 command.getModule().getKey(),
+                command.getModule().getTemplates(),
                 command.getModule().getTechnos(),
                 command.getModule().getVersionId() + 1);
         apply(new ModuleUpdatedEvent(moduleWithUpdatedVersionId, command.getUser()));
     }
 
     @CommandHandler
-    public ModuleAggregate(DeleteModuleCommand command) {
+    public void delteModule(DeleteModuleCommand command) {
         log.debug("Applying delete module command...");
         apply(new ModuleDeletedEvent(command.getModule(), command.getUser()));
     }

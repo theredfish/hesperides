@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import static org.hesperides.domain.Profiles.ELASTICSEARCH;
+
 @Slf4j
-@Profile("elasticsearch")
+@Profile(ELASTICSEARCH)
 @Component
 public class ElasticsearchModuleCommandsRepository implements ModuleCommandsRepository {
     private ElasticsearchModuleRepository elasticsearchModuleRepository;
@@ -54,8 +56,7 @@ public class ElasticsearchModuleCommandsRepository implements ModuleCommandsRepo
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionTypeAndVersionId(
+        ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionTypeAndVersionId(
                 event.getModule().getKey().getName(),
                 event.getModule().getKey().getVersion(),
                 event.getModule().getKey().getVersionType(),
