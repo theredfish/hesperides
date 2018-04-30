@@ -9,7 +9,7 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer
 // Command
 data class CreateModuleCommand(val module: Module, val user: User)
 data class UpdateModuleCommand(@TargetAggregateIdentifier val moduleKey: TemplateContainer.Key, val module: Module, val user: User)
-data class DeleteModuleCommand(@TargetAggregateIdentifier val moduleKey: TemplateContainer.Key, val module: Module, val user: User)
+data class DeleteModuleCommand(@TargetAggregateIdentifier val moduleKey: TemplateContainer.Key, val user: User)
 
 // Event
 data class ModuleCopiedEvent(val moduleKey: TemplateContainer.Key, val sourceModuleKey: TemplateContainer.Key, override val user: User) : UserEvent(user)
