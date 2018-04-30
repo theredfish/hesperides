@@ -2,8 +2,10 @@ package org.hesperides.domain.technos.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
+import org.hesperides.domain.technos.GetTechnoByKeyQuery;
 import org.hesperides.domain.technos.GetTemplateQuery;
 import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
+import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.stereotype.Component;
@@ -22,5 +24,9 @@ public class TechnoQueries extends Queries {
 
     public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {
         return querySyncOptional(new GetTemplateQuery(technoKey, templateName), TemplateView.class);
+    }
+
+    public Optional<TechnoView> getTechno(Techno.Key technoKey) {
+        return querySyncOptional(new GetTechnoByKeyQuery(technoKey), TechnoView.class);
     }
 }

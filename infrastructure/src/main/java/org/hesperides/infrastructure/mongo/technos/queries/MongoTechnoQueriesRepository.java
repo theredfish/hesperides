@@ -21,10 +21,12 @@
 package org.hesperides.infrastructure.mongo.technos.queries;
 
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.domain.technos.GetTechnoByKeyQuery;
 import org.hesperides.domain.technos.GetTemplateQuery;
 import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoQueriesRepository;
+import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
@@ -73,4 +75,27 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
                 key.getName(), key.getVersion(), key.isWorkingCopy());
         return technoDocument.isPresent();
     }
+
+    @QueryHandler
+    public Optional<TechnoView> query(GetTechnoByKeyQuery query){
+        Optional<TechnoView> technoView = Optional.empty();
+        TemplateContainer.Key key = query.getTechnoKey();
+        TechnoDocument technoDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(),key.getVersion(),key.isWorkingCopy());
+        if (technoDocument != null){
+            technoView = Optional.of((technoDocument.toTechnoView()));
+        }
+        return technoView;
+    }
+
+//    @QueryHandler
+//    @Override
+//    public Optional<ModuleView> query(GetModuleByKeyQuery query) {
+//        Optional<ModuleView> moduleView = Optional.empty();
+//        TemplateContainer.Key key = query.getModuleKey();
+//        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+//        if (moduleDocument != null) {
+//            moduleView = Optional.of(moduleDocument.toModuleView());
+//        }
+//        return moduleView;
+//    }
 }

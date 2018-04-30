@@ -16,5 +16,6 @@ data class TechnoCreatedEvent(val techno: Techno, override val user: User) : Use
 data class TemplateAddedToTechnoEvent(val technoKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
 
 // Queries
+data class GetTechnoByKeyQuery(val technoKey: TemplateContainer.Key)
 data class TechnoAlreadyExistsQuery(val technoKey: TemplateContainer.Key)
 data class GetTemplateQuery(val technoKey: TemplateContainer.Key, val templateName: String)

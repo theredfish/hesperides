@@ -35,8 +35,8 @@ public class TechnoView {
     String version;
     @SerializedName("working_copy")
     boolean workingCopy;
-    @SerializedName("version_id")
-    Long versionId;
+//    @SerializedName("version_id")
+//    Long versionId;
     List<TemplateView> templates;
 
     public Techno toDomain() {

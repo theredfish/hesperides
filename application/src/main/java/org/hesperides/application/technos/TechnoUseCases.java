@@ -2,7 +2,9 @@ package org.hesperides.application.technos;
 
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.commands.TechnoCommands;
+import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoQueries;
+import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
@@ -43,5 +45,9 @@ public class TechnoUseCases {
 
     public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {
         return queries.getTemplate(technoKey, templateName);
+    }
+
+    public Optional<TechnoView> getTechno(Techno.Key moduleKey) {
+        return queries.getTechno(moduleKey);
     }
 }

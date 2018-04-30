@@ -24,6 +24,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.application.technos.TechnoUseCases;
+import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.technos.exception.TechnoNotFoundException;
+import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.presentation.inputs.TemplateInput;
@@ -63,5 +66,18 @@ public class TechnoController extends BaseController {
         TemplateView templateView = technoUseCases.getTemplate(technoKey, templateInput.getName()).get();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(templateView);
+    }
+
+    @ApiOperation("Get info for a given techno release/working-copy")
+    @GetMapping(path = "/{techno_name}/{techno_version}/{techno_type}")
+    public ResponseEntity<TechnoView> getTechnoInfo(
+            @PathVariable("techno_name") final String technoName,
+            @PathVariable("techno_version") final String technoVersion,
+            @PathVariable("techno_type") final Techno.Type technoType){
+        log.debug("getTechnoInfo technoName: {}, technoVersion: {}, technoType: {}", technoName, technoVersion, technoType);
+        final Techno.Key technoKey = new Techno.Key(technoName, technoVersion, technoType);
+        ResponseEntity<TechnoView> techno = technoUseCases.getTechno(technoKey).map(ResponseEntity::ok).orElseThrow(() -> new TechnoNotFoundException(technoKey));
+        log.debug("return getTechnoInfo: {}", techno.getBody().toString());
+        return techno;
     }
 }
