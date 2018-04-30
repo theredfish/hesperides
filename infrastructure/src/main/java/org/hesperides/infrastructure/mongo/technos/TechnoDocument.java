@@ -56,4 +56,8 @@ public class TechnoDocument {
         return new TechnoView(name, version, workingCopy,
                 templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(technoKey, Techno.NAMESPACE_PREFIX)).collect(Collectors.toList()) : null);
     }
+
+    public TemplateContainer.Key toTechnoViewFromModule(){
+        return new TemplateContainer.Key(name,version,workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+    }
 }

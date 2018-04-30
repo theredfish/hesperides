@@ -25,16 +25,20 @@ import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
 import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Value
 public class TechnoInput {
     String name;
     String version;
     boolean isWorkingCopy;
-    TemplateInput template;
+    Set<TemplateInput> templates;
 
     public Techno toDomainInstance() {
         TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
-        return new Techno(technoKey, Collections.singletonList(template.toDomainInstance(technoKey)));
+        return new Techno(technoKey,
+                templates != null ? templates.stream().map(templateInput -> templateInput.toDomainInstance(technoKey)).collect(Collectors.toList()) : null);
+//        return new Techno(technoKey, Collections.singletonList(template.toDomainInstance(technoKey)));
     }
 }

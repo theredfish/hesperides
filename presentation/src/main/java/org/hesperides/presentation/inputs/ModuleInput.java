@@ -3,11 +3,13 @@ package org.hesperides.presentation.inputs;
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Value
 public final class ModuleInput {
@@ -27,18 +29,13 @@ public final class ModuleInput {
     @SerializedName("version_id")
     Long versionId;
 
+    Set<TemplateInput> templates;
+
     public Module toDomainInstance() {
-        return new Module(
-                new TemplateContainer.Key(
-                        name,
-                        version,
-                        isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release
-                ),
-                /**
-                 * TODO Templates et technos
-                 */
-                null,
-                null,
+        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name,version,isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release)
+        return new Module(moduleKey,
+                templates !=null ? templates.stream().map(templateInput -> templateInput.toDomainInstance(moduleKey)).collect(Collectors.toList()) : null,
+                technos != null ? technos.stream().collect(Collectors.toList()) : null,
                 versionId
         );
     }

@@ -8,9 +8,14 @@ import org.hesperides.domain.modules.commands.ModuleCommandsRepository;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
+import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
+import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
+import org.hesperides.infrastructure.mongo.technos.queries.MongoTechnoQueriesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+
+import java.util.Set;
 
 import static org.hesperides.domain.Profiles.*;
 
@@ -19,16 +24,25 @@ import static org.hesperides.domain.Profiles.*;
 public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
 
     private final MongoModuleRepository repository;
+    private final MongoTechnoRepository technoRepository;
 
     @Autowired
-    public MongoModuleCommandsRepository(MongoModuleRepository repository) {
+    public MongoModuleCommandsRepository(MongoModuleRepository repository, MongoTechnoRepository technoRepository) {
         this.repository = repository;
+        this.technoRepository = technoRepository;
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleCreatedEvent event) {
         ModuleDocument module = ModuleDocument.fromDomain(event.getModule());
+        module.setTechnos(event.getModule().getTechnos() != null ? event.getModule().getTechnos().stream().map(
+                techno -> technoRepository.findByNameAndVersionAndWorkingCopy(techno.getKey().getName(),techno.getKey().getVersion(),techno.getKey().isWorkingCopy()));
+        Set<TechnoDocument> pouet = event.getModule().getTechnos().forEach(technoKey -> technoRepository.
+                findByNameAndVersionAndWorkingCopy(technoKey.getName(),
+                        technoKey.getVersion(),
+                        technoKey.isWorkingCopy())));
+        module.setTechnos();
         repository.save(module);
     }
 

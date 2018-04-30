@@ -55,7 +55,7 @@ public class Unnamed {
     ApplicationRunner moduleImport(RedisTemplate<String,LegacyEvent> rt,MigrationService migrationService){
         return titledRunner("moduleImport",args ->{
 
-            Set<String> keys = rt.keys("module-CrmCC-war-1.2.1.0-wc");
+            Set<String> keys = rt.keys("module-Blamod-1.0.12-wc");
             keys.forEach(key -> migrationService.migrate(key,rt.opsForList()));
         });
     }
