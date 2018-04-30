@@ -22,6 +22,11 @@
             <groupId>org.hesperides</groupId>
             <artifactId>infrastructure</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.hesperides</groupId>
+            <artifactId>batch</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Spring Boot dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

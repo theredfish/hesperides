@@ -56,11 +56,10 @@ public class ElasticsearchModuleCommandsRepository implements ModuleCommandsRepo
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
-        ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionTypeAndVersionId(
-                event.getModule().getKey().getName(),
-                event.getModule().getKey().getVersion(),
-                event.getModule().getKey().getVersionType(),
-                event.getModule().getVersionId());
+        ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
+                event.getModuleKey().getName(),
+                event.getModuleKey().getVersion(),
+                event.getModuleKey().getVersionType());
         elasticsearchModuleRepository.delete(moduleDocument);
     }
 }

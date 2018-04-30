@@ -1,10 +1,9 @@
-package org.hesperides.batch;
+package org.hesperides.batch.redis.legacy.entities;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Value;
 
 @Data
 @AllArgsConstructor

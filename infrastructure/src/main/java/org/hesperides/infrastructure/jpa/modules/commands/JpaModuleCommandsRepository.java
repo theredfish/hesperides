@@ -62,11 +62,10 @@ public class JpaModuleCommandsRepository implements ModuleCommandsRepository {
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
-        Module module = event.getModule();
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
-                module.getKey().getName(),
-                module.getKey().getVersion(),
-                module.getKey().getVersionType()
+                event.getModuleKey().getName(),
+                event.getModuleKey().getVersion(),
+                event.getModuleKey().getVersionType()
         );
         jpaModuleRepository.delete(id);
     }

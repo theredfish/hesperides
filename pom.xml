@@ -28,6 +28,7 @@
         <module>tests/bdd</module>
         <module>tests/integration</module>
         <module>tests/tech</module>
+        <module>batch</module>
     </modules>
 
     <properties>

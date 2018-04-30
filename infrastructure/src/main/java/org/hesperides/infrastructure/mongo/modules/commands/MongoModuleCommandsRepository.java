@@ -55,9 +55,9 @@ public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
     public void on(ModuleDeletedEvent event) {
         //TODO Utiliser la méthode findByKey et sortir le mapping dans ModuleDocument
         ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setName(event.getModule().getKey().getName());
-        moduleDocument.setVersion(event.getModule().getKey().getVersion());
-        moduleDocument.setVersionType(event.getModule().getKey().getVersionType());
+        moduleDocument.setName(event.getModuleKey().getName());
+        moduleDocument.setVersion(event.getModuleKey().getVersion());
+        moduleDocument.setVersionType(event.getModuleKey().getVersionType());
         moduleDocument = mongoModuleRepository.findOne(Example.of(moduleDocument));
         mongoModuleRepository.delete(moduleDocument);
     }

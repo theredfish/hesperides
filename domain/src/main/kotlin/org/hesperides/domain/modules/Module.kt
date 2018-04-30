@@ -15,7 +15,7 @@ data class DeleteModuleCommand(@TargetAggregateIdentifier val moduleKey: Templat
 data class ModuleCopiedEvent(val moduleKey: TemplateContainer.Key, val sourceModuleKey: TemplateContainer.Key, override val user: User) : UserEvent(user)
 data class ModuleCreatedEvent(val module: Module, override val user: User) : UserEvent(user)
 data class ModuleUpdatedEvent(val module: Module, override val user: User) : UserEvent(user)
-data class ModuleDeletedEvent(val module: Module, override val user: User) : UserEvent(user)
+data class ModuleDeletedEvent(val moduleKey: TemplateContainer.Key, override val user: User) : UserEvent(user)
 
 // Query
 data class ModuleAlreadyExistsQuery(val moduleKey: TemplateContainer.Key)

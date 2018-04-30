@@ -2,6 +2,9 @@ spring:
   application.name: HESPERIDES
 
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
+  redis:
+    host: 10.98.208.75
+    port: 58379
 
 server:
   port: ${SERVER_PORT:8080}
@@ -14,5 +17,4 @@ ldap:
   usernameAttribute: ${LDAP_USERNAME_ATTRIBUTE}
   connectTimeout: ${LDAP_CONNECT_TIMEOUT:1000}
   readTimeout: ${LDAP_READ_TIMEOUT:1000}
-
 liquibase.enabled: false
