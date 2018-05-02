@@ -39,7 +39,7 @@ import java.util.function.Supplier;
 @Log
 @Component
 @Profile("batch")
-public class Unnamed {
+public class BatchRunner {
     @Autowired
     EmbeddedEventStore eventBus;
 
@@ -55,7 +55,7 @@ public class Unnamed {
     ApplicationRunner moduleImport(RedisTemplate<String,LegacyEvent> rt,MigrationService migrationService){
         return titledRunner("moduleImport",args ->{
 
-            Set<String> keys = rt.keys("module-Blamod-1.0.12-wc");
+            Set<String> keys = rt.keys("module-*");
             keys.forEach(key -> migrationService.migrate(key,rt.opsForList()));
         });
     }

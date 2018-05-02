@@ -24,25 +24,16 @@ import static org.hesperides.domain.Profiles.*;
 public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
 
     private final MongoModuleRepository repository;
-    private final MongoTechnoRepository technoRepository;
 
     @Autowired
-    public MongoModuleCommandsRepository(MongoModuleRepository repository, MongoTechnoRepository technoRepository) {
+    public MongoModuleCommandsRepository(MongoModuleRepository repository) {
         this.repository = repository;
-        this.technoRepository = technoRepository;
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleCreatedEvent event) {
         ModuleDocument module = ModuleDocument.fromDomain(event.getModule());
-        module.setTechnos(event.getModule().getTechnos() != null ? event.getModule().getTechnos().stream().map(
-                techno -> technoRepository.findByNameAndVersionAndWorkingCopy(techno.getKey().getName(),techno.getKey().getVersion(),techno.getKey().isWorkingCopy()));
-        Set<TechnoDocument> pouet = event.getModule().getTechnos().forEach(technoKey -> technoRepository.
-                findByNameAndVersionAndWorkingCopy(technoKey.getName(),
-                        technoKey.getVersion(),
-                        technoKey.isWorkingCopy())));
-        module.setTechnos();
         repository.save(module);
     }
 

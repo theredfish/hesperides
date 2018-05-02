@@ -3,7 +3,6 @@ package org.hesperides.presentation.inputs;
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -32,10 +31,10 @@ public final class ModuleInput {
     Set<TemplateInput> templates;
 
     public Module toDomainInstance() {
-        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name,version,isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release)
+        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name,version,isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
         return new Module(moduleKey,
                 templates !=null ? templates.stream().map(templateInput -> templateInput.toDomainInstance(moduleKey)).collect(Collectors.toList()) : null,
-                technos != null ? technos.stream().collect(Collectors.toList()) : null,
+               null,
                 versionId
         );
     }

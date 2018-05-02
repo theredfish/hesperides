@@ -26,8 +26,6 @@ public class ModuleDocument {
     boolean workingCopy;
     Long versionId;
     List<TemplateDocument> templates;
-    @DBRef
-    List<TechnoDocument> technos;
     //TODO Technos
 
     public static ModuleDocument fromDomain(Module module) {
@@ -38,7 +36,6 @@ public class ModuleDocument {
         moduleDocument.setWorkingCopy(key.getVersionType().equals(TemplateContainer.Type.workingcopy));
         moduleDocument.setVersionId(module.getVersionId());
         moduleDocument.setTemplates(module.getTemplates() != null ? module.getTemplates().stream().map(TemplateDocument::fromDomain).collect(Collectors.toList()) : null);
-        moduleDocument.setTechnos(module.getTechnos() != null ? module.getTechnos().stream().map(technoKey -> TechnoQueries.getTechno(technoKey)).collect(Collectors.toList()) : null);
         //TODO Technos
         return moduleDocument;
     }
@@ -47,6 +44,6 @@ public class ModuleDocument {
         TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
         return new ModuleView(name, version, workingCopy, versionId,
                 templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(moduleKey, Module.NAMESPACE_PREFIX)).collect(Collectors.toList()) : null,
-                technos != null ? technos.stream().map(technoDocument -> technoDocument.toTechnoView())); //TODO Technos
+                null); //TODO Technos
     }
 }

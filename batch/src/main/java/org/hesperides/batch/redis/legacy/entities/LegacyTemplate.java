@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
 @Value
 public class LegacyTemplate {
@@ -17,4 +18,8 @@ public class LegacyTemplate {
 
     @SerializedName("version_id")
     Long versionId;
+
+    public Template toDomainTemplate(TemplateContainer.Key key){
+        return new Template(name,filename,location,content,rights,versionId,key);
+    }
 }
