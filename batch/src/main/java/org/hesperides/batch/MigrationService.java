@@ -8,89 +8,88 @@ import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.messaging.MetaData;
 import org.hesperides.batch.redis.legacy.entities.LegacyEvent;
 import org.hesperides.batch.redis.legacy.events.*;
-import org.hesperides.domain.modules.*;
-import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.batch.redis.legacy.events.modules.*;
 import org.hesperides.domain.security.User;
-import org.hesperides.domain.templatecontainer.entities.Template;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.toIntExact;
+
 @Log
 @Service
 public class MigrationService {
     @Autowired
     EmbeddedEventStore eventBus;
 
-    void migrate(String key, ListOperations<String,LegacyEvent> redisOperations){
+    void migrate(String key, ListOperations<String, LegacyEvent> redisOperations) {
         IntStream.range(0, toIntExact(redisOperations.size(key))).forEach(
                 number -> {
-                    ConvertModule(redisOperations.index(key, number),Long.valueOf(number));
+                    ConvertModule(redisOperations.index(key, number), Long.valueOf(number));
                 }
         );
     }
-private void ConvertModule(LegacyEvent event,Long index){
-        Long timestamp = event.getTimestamp();
-        Supplier<Instant> supplier = ()-> Instant.ofEpochMilli(timestamp);
-        Gson gson = new Gson();
-        GenericEventMessage eventMessage = null;
-        GenericDomainEventMessage domainEventMessage = null;
-        User user = new User(event.getUser());
 
-        String aggregateId = "";
+    private void ConvertModule(LegacyEvent event, Long index) {
+        LegacyInterface legacyInterface = ConvertEvent(event);
+        if (legacyInterface != null) {
 
-        LegacyInterface legacyEvent;
-        switch (event.getEventType()){
-            case LegacyModuleCreatedEvent.EVENT_TYPE :
-                legacyEvent = gson.fromJson(event.getData(),LegacyModuleCreatedEvent.class);
-                eventMessage = new GenericEventMessage(legacyEvent.toDomainEvent(user),MetaData.emptyInstance());
-                aggregateId = legacyEvent.getKey().toString();
-                break;
-            case LegacyModuleUpdatedEvent.EVENT_TYPE :
-                //TODO Implémentation Update Module, en attente techno
-                break;
-            case LegacyModuleDeletedEvent.EVENT_TYPE:
-                legacyEvent = gson.fromJson(event.getData(),LegacyModuleDeletedEvent.class);
-                eventMessage = new GenericEventMessage(legacyEvent.toDomainEvent(user),MetaData.emptyInstance());
-                aggregateId = legacyEvent.getKey().toString();
+            Long timestamp = event.getTimestamp();
+            Supplier<Instant> supplier = () -> Instant.ofEpochMilli(timestamp);
+            User user = new User(event.getUser());
+            GenericEventMessage eventMessage = new GenericEventMessage(legacyInterface.toDomainEvent(user), MetaData.emptyInstance());
+            String aggregateId = legacyInterface.getKey().toString();
 
-                break;
+            if (eventMessage != null) {
+                GenericDomainEventMessage domainEventMessage = new GenericDomainEventMessage<>("ModuleAggregate", aggregateId, index, eventMessage, supplier);
 
-            case LegacyTemplateCreatedEvent.EVENT_TYPE:
-                legacyEvent = gson.fromJson(event.getData(),LegacyTemplateCreatedEvent.class);
-                eventMessage = new GenericEventMessage(legacyEvent.toDomainEvent(user),MetaData.emptyInstance());
-                aggregateId = legacyEvent.getKey().toString();
-                break;
-            case LegacyTemplateUpdatedEvent.EVENT_TYPE:
-                legacyEvent = gson.fromJson(event.getData(),LegacyTemplateUpdatedEvent.class);
-                eventMessage = new GenericEventMessage(legacyEvent.toDomainEvent(user),MetaData.emptyInstance());
-                aggregateId = legacyEvent.getKey().toString();
+                try {
+                    eventBus.publish(domainEventMessage);
+                    log.info(domainEventMessage.getAggregateIdentifier() + event.getEventType());
 
-                break;
-            case LegacyTemplateDeletedEvent.EVENT_TYPE:
-                legacyEvent = gson.fromJson(event.getData(),LegacyTemplateDeletedEvent.class);
-                eventMessage = new GenericEventMessage(legacyEvent.toDomainEvent(user),MetaData.emptyInstance());
-                aggregateId = legacyEvent.getKey().toString();
-                break;
-            default:
-                throw new UnsupportedOperationException("Deserialization for class " + event.getEventType() + " is not implemented");
-
-        }
-        if (eventMessage != null) {
-            domainEventMessage = new GenericDomainEventMessage("ModuleAggregate",aggregateId,index,eventMessage,supplier);
-
-            try {
-                eventBus.publish(domainEventMessage);
-                log.info(domainEventMessage.getAggregateIdentifier() + event.getEventType());
-
-            } catch (Exception e) {
-                log.info("Aie");
+                } catch (Exception e) {
+                    log.info("Aie");
+                }
             }
         }
+    }
+
+    public LegacyInterface ConvertEvent(LegacyEvent event) {
+        Gson gson = new Gson();
+        Map<String, Type> dictionary = new HashMap<>();
+        //Module
+        dictionary.put("com.vsct.dt.hesperides.templating.modules.ModuleCreatedEvent", LegacyModuleCreatedEvent.class);
+//        TODO: Implémenter technos
+//        dictionary.put("com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyUpdatedEvent",LegacyModuleUpdatedEvent.class);
+        dictionary.put("com.vsct.dt.hesperides.templating.modules.ModuleDeletedEvent", LegacyModuleDeletedEvent.class);
+        dictionary.put("com.vsct.dt.hesperides.templating.modules.ModuleTemplateCreatedEvent", LegacyModuleTemplateCreatedEvent.class);
+        dictionary.put("com.vsct.dt.hesperides.templating.modules.ModuleTemplateUpdatedEvent", LegacyModuleTemplateUpdatedEvent.class);
+        dictionary.put("com.vsct.dt.hesperides.templating.modules.ModuleTemplateDeletedEvent", LegacyModuleTemplateDeletedEvent.class);
+
+//        Technos
+//        La création et mise à jour d'une techno en temps qu'entité n'existe pas sur le Legacy
+//        TODO: WIP création et update template dans une techno
+
+//        dictionary.put("com.vsct.dt.hesperides.templating.packages.TemplateCreatedEvent",LegacyTechnoTemplateCreatedEvent.class);
+//        dictionary.put("com.vsct.dt.hesperides.templating.packages.TemplateUpdatedEvent",LegacyTechnoTemplateUpdatedEvent.class);
+//        dictionary.put("com.vsct.dt.hesperides.templating.packages.TemplateDeletedEvent",LegacyTechnoTemplateDeletedEvent.class);
+
+        //Platforms
+        String eventType = event.getEventType();
+        LegacyInterface result;
+        if (dictionary.containsKey(event.getEventType())) {
+            result = gson.fromJson(event.getData(), dictionary.get(eventType));
+        } else
+            result = null;
+        return result;
+
+
     }
 }

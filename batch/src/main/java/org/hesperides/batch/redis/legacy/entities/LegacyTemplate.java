@@ -14,6 +14,7 @@ public class LegacyTemplate {
     String filename;
     String location;
     String content;
+    String namespace;
     Template.Rights rights;
 
     @SerializedName("version_id")
@@ -21,5 +22,10 @@ public class LegacyTemplate {
 
     public Template toDomainTemplate(TemplateContainer.Key key){
         return new Template(name,filename,location,content,rights,versionId,key);
+    }
+
+    public TemplateContainer.Key getKeyFromNamespace(){
+        String[] temp = namespace.split("#");
+        return new TemplateContainer.Key(temp[1],temp[2],temp[3] == "WORKINGCOPY" ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
     }
 }

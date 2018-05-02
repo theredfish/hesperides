@@ -1,15 +1,16 @@
-package org.hesperides.batch.redis.legacy.events;
+package org.hesperides.batch.redis.legacy.events.modules;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.batch.redis.legacy.entities.LegacyTemplate;
+import org.hesperides.batch.redis.legacy.events.LegacyInterface;
 import org.hesperides.domain.modules.TemplateCreatedEvent;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
 @Value
-public class LegacyTemplateCreatedEvent implements LegacyInterface {
+public class LegacyModuleTemplateCreatedEvent implements LegacyInterface {
     public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleTemplateCreatedEvent";
 
     String moduleName;

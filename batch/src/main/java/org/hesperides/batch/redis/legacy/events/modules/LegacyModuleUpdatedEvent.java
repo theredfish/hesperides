@@ -1,4 +1,4 @@
-package org.hesperides.batch.redis.legacy.events;
+package org.hesperides.batch.redis.legacy.events.modules;
 
 public class LegacyModuleUpdatedEvent {
 

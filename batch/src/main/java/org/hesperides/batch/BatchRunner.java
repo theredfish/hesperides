@@ -55,7 +55,7 @@ public class BatchRunner {
     ApplicationRunner moduleImport(RedisTemplate<String,LegacyEvent> rt,MigrationService migrationService){
         return titledRunner("moduleImport",args ->{
 
-            Set<String> keys = rt.keys("module-*");
+            Set<String> keys = rt.keys("template*");
             keys.forEach(key -> migrationService.migrate(key,rt.opsForList()));
         });
     }
