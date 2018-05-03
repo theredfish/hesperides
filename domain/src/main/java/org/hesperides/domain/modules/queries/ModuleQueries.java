@@ -4,6 +4,7 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.stereotype.Component;
 
@@ -42,5 +43,13 @@ public class ModuleQueries extends Queries {
 
     public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {
         return querySyncOptional(new GetTemplateByNameQuery(moduleKey, templateName), TemplateView.class);
+    }
+
+    public List<ModuleView> search(String query) {
+        return querySyncList(new SearchModulesQuery(query), ModuleView.class);
+    }
+
+    public List<TemplateView> getTemplates(TemplateContainer.Key moduleKey) {
+        return querySyncList(new GetModuleTemplatesQuery(moduleKey), TemplateView.class);
     }
 }

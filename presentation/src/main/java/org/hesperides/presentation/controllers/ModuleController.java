@@ -136,7 +136,7 @@ public class ModuleController extends BaseController {
         return ResponseEntity.status(SEE_OTHER).location(module.getKey().getURI()).build();
     }
 
-    @ApiOperation("Deletes the working copy")
+    @ApiOperation("Delete a module working copy")
     @DeleteMapping(path = "/{module_name}/{module_version}/workingcopy")
     public ResponseEntity deleteWorkingCopy(Principal currentUser,
                                             @PathVariable(value = "module_name") final String moduleName,
@@ -153,7 +153,7 @@ public class ModuleController extends BaseController {
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation("Deletes the release")
+    @ApiOperation("Delete a module release")
     @DeleteMapping(path = "/{module_name}/{module_version}/release")
     public ResponseEntity deleteRelease(Principal currentUser,
                                         @PathVariable(value = "module_name") final String moduleName,
@@ -167,5 +167,12 @@ public class ModuleController extends BaseController {
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.release);
         moduleUseCases.deleteRelease(moduleKey, fromPrincipal(currentUser));
         return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation("Search for modules")
+    @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<ModuleView>> search(@RequestParam("terms") final String input) {
+        log.info("search module {}", input);
+        return ResponseEntity.ok(moduleUseCases.search(input));
     }
 }

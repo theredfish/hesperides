@@ -136,4 +136,12 @@ public class ModuleUseCases {
         commands.createModule(newModule, user);
         return queries.getModule(newModuleKey).get();
     }
+
+    public List<ModuleView> search(String input) {
+        return queries.search(input);
+    }
+
+    public List<TemplateView> getTemplates(TemplateContainer.Key moduleKey) {
+        return queries.getTemplates(moduleKey);
+    }
 }
