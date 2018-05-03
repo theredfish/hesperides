@@ -55,7 +55,7 @@ public class MigrationService {
                     log.info(domainEventMessage.getAggregateIdentifier() + event.getEventType());
 
                 } catch (Exception e) {
-                    log.info("Aie");
+                    log.info(e.getLocalizedMessage());
                 }
             }
         }
