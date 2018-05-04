@@ -8,21 +8,12 @@ import org.hesperides.domain.modules.commands.ModuleCommandsRepository;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
-<<<<<<< HEAD
-import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
-=======
->>>>>>> VSCTdevelop
 import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.infrastructure.mongo.technos.queries.MongoTechnoQueriesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-
-<<<<<<< HEAD
-import java.util.Set;
-=======
 import java.util.List;
->>>>>>> VSCTdevelop
 
 import static org.hesperides.domain.Profiles.*;
 

@@ -33,11 +33,6 @@ public class TechnoView {
     String name;
     String version;
     boolean workingCopy;
-<<<<<<< HEAD
-//    @SerializedName("version_id")
-//    Long versionId;
-=======
->>>>>>> VSCTdevelop
     List<TemplateView> templates;
 
     public Techno toDomain() {

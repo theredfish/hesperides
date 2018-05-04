@@ -78,30 +78,6 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
         return technoDocument.isPresent();
     }
 
-<<<<<<< HEAD
-    @QueryHandler
-    public Optional<TechnoView> query(GetTechnoByKeyQuery query){
-        Optional<TechnoView> technoView = Optional.empty();
-        TemplateContainer.Key key = query.getTechnoKey();
-        TechnoDocument technoDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(),key.getVersion(),key.isWorkingCopy());
-        if (technoDocument != null){
-            technoView = Optional.of((technoDocument.toTechnoView()));
-        }
-        return technoView;
-    }
-
-//    @QueryHandler
-//    @Override
-//    public Optional<ModuleView> query(GetModuleByKeyQuery query) {
-//        Optional<ModuleView> moduleView = Optional.empty();
-//        TemplateContainer.Key key = query.getModuleKey();
-//        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
-//        if (moduleDocument != null) {
-//            moduleView = Optional.of(moduleDocument.toModuleView());
-//        }
-//        return moduleView;
-//    }
-=======
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {
         List<TechnoDocument> result = null;
         if (technos != null) {
@@ -111,5 +87,4 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
         }
         return result;
     }
->>>>>>> VSCTdevelop
 }

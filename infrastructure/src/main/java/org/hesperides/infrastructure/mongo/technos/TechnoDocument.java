@@ -54,14 +54,6 @@ public class TechnoDocument {
     public TechnoView toTechnoView() {
         TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
         return new TechnoView(name, version, workingCopy,
-<<<<<<< HEAD
-                templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(technoKey, Techno.NAMESPACE_PREFIX)).collect(Collectors.toList()) : null);
-    }
-
-    public TemplateContainer.Key toTechnoViewFromModule(){
-        return new TemplateContainer.Key(name,version,workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
-=======
                 templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(technoKey, Techno.KEY_PREFIX)).collect(Collectors.toList()) : null);
->>>>>>> VSCTdevelop
     }
 }
