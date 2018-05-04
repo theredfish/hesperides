@@ -8,37 +8,36 @@ import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-public class GetModuleInfo extends CucumberSpringBean implements En {
+public class ReleaseAModule extends CucumberSpringBean implements En {
 
     private ResponseEntity<ModuleIO> response;
 
     @Autowired
     private ExistingModuleContext existingModule;
 
-    public GetModuleInfo() {
-
-        When("^retrieving the module's info$", () -> {
-            response = rest.getTestRest().getForEntity(existingModule.getModuleLocation(), ModuleIO.class);
+    public ReleaseAModule() {
+        When("^releasing the module$", () -> {
+            TemplateContainer.Key moduleKey = existingModule.getModuleKey();
+            response = rest.getTestRest().postForEntity("/modules/create_release?module_name={moduleName}&module_version={moduleVersion}",
+                    null, ModuleIO.class,
+                    moduleKey.getName(), moduleKey.getVersion());
         });
 
-        Then("^the module's info is retrieved$", () -> {
+        Then("^the module is released$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModuleIO moduleOutput = response.getBody();
             TemplateContainer.Key moduleKey = existingModule.getModuleKey();
             assertEquals(moduleKey.getName(), moduleOutput.getName());
             assertEquals(moduleKey.getVersion(), moduleOutput.getVersion());
-            assertEquals(moduleKey.isWorkingCopy(), moduleOutput.isWorkingCopy());
+            assertEquals(false, moduleOutput.isWorkingCopy());
             assertEquals(1, moduleOutput.getVersionId().longValue());
-            assertTrue(CollectionUtils.isEmpty(moduleOutput.getTechnos()));
         });
     }
 
     /**
-     * TODO Tester un module avec des technos
+     * TODO Tester avec version de release, technos et templates
      */
 }

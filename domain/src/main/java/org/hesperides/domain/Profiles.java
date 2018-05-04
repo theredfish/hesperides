@@ -28,5 +28,9 @@ public class Profiles {
     public static final String JPA = "jpa";
     public static final String LDAP = "ldap";
     public static final String NOLDAP = "noldap";
+<<<<<<< HEAD
     public static final String BIATCH = "batch";
+=======
+    public static final String SPRING_BOOT_ADMIN = "sba";
+>>>>>>> VSCTdevelop
 }

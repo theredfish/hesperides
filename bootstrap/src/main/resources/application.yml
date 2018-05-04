@@ -1,10 +1,12 @@
 spring:
   application.name: HESPERIDES
-
+  boot.admin.client.enabled: false
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
   redis:
     host: 10.98.208.75
     port: 58379
+
+management.security.enabled: false
 
 server:
   port: ${SERVER_PORT:8080}
