@@ -24,7 +24,7 @@ import java.util.Set;
 @Profile("batch")
 public class BatchRunner {
 
-    private static final String SEARCHPATTERN = "mod";
+    private static final String SEARCHPATTERN = "module";
     @Autowired
     EmbeddedEventStore eventBus;
 
