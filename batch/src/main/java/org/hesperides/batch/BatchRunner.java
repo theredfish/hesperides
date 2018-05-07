@@ -15,33 +15,31 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
-import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
-
-import java.util.Set;
-
 @Log
 @Component
 @Profile("batch")
 public class BatchRunner {
 
-    private static final String SEARCHPATTERN = "module";
     @Autowired
     EmbeddedEventStore eventBus;
 
-    private ApplicationRunner titledRunner(String title, ApplicationRunner rr){
+    private ApplicationRunner titledRunner(ApplicationRunner rr){
         return args -> {
-            log.info(title.toUpperCase() + " : ");
+            log.info("Let's Gooo : ");
             rr.run(args);
         };
     }
 
-
     @Bean
-    ApplicationRunner moduleImport(RedisTemplate<String,LegacyEvent> rt,MigrationService migrationService){
-        return titledRunner("moduleImport",args ->{
+    ApplicationRunner moduleImport(RedisTemplate<String,LegacyEvent> redisTemplate){
+        return titledRunner(args ->{
+            MigrateAbstractService migrateTechno = new MigrateTechnoService();
+            migrateTechno.migrate(redisTemplate,eventBus);
+            MigrateAbstractService migrateModule = new MigrateModuleService();
+            migrateModule.migrate(redisTemplate,eventBus);
+//            MigrateAbstractService migratePlatform = new MigratePlatformService();
+//            migratePlatform.migrate(redisTemplate,eventBus);
 
-            Set<String> keys = rt.keys(SEARCHPATTERN +"*");
-            keys.forEach(key -> migrationService.migrate(key,rt.opsForList()));
         });
     }
 
