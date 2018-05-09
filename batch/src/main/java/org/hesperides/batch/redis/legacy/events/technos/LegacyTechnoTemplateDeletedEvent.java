@@ -22,4 +22,9 @@ public class LegacyTechnoTemplateDeletedEvent implements LegacyInterface {
 
         return new TemplateDeletedEvent(getKey(),name,user);
     }
+
+    @Override
+    public String getKeyString() {
+        return getKey().toString("techno");
+    }
 }

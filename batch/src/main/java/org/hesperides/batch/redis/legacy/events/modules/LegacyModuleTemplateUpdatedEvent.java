@@ -26,4 +26,9 @@ public class LegacyModuleTemplateUpdatedEvent implements LegacyInterface {
     public TemplateContainer.Key getKey(){
         return new TemplateContainer.Key(moduleName,moduleVersion,TemplateContainer.Type.workingcopy);
     }
+
+    @Override
+    public String getKeyString() {
+        return getKey().toString("module");
+    }
 }

@@ -23,4 +23,9 @@ public class LegacyModuleDeletedEvent implements LegacyInterface {
     public Object toDomainEvent(User user) {
         return new ModuleDeletedEvent(getKey(),user);
     }
+
+    @Override
+    public String getKeyString() {
+        return getKey().toString("module");
+    }
 }

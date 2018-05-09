@@ -25,4 +25,9 @@ public class LegacyModuleTemplateDeletedEvent implements LegacyInterface {
     public Object toDomainEvent(User user) {
         return new TemplateDeletedEvent(getKey(),templateName,user);
     }
+
+    @Override
+    public String getKeyString() {
+        return getKey().toString("module");
+    }
 }

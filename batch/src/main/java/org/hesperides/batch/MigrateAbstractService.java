@@ -64,7 +64,7 @@ abstract class MigrateAbstractService {
                 Supplier<Instant> supplier = () -> Instant.ofEpochMilli(timestamp);
                 User user = new User(event.getUser());
                 GenericEventMessage<Object> eventMessage = new GenericEventMessage<>(legacyInterface.toDomainEvent(user), MetaData.emptyInstance());
-                String aggregateId = legacyInterface.getKey().toString();
+                String aggregateId = legacyInterface.getKeyString();
                 // TODO : trouver mieux que events.indexOf(event)
                 domainEventMessage.add(new GenericDomainEventMessage<Object>(AGGREGATE_TYPE, aggregateId, events.indexOf(event), eventMessage, supplier));
             }

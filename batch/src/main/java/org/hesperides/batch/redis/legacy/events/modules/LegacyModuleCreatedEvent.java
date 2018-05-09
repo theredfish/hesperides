@@ -34,4 +34,9 @@ public class LegacyModuleCreatedEvent implements LegacyInterface {
     public Object toDomainEvent(User user) {
         return new ModuleCreatedEvent(module.toDomainModule(templates),user);
     }
+
+    @Override
+    public String getKeyString() {
+        return getKey().toString("module");
+    }
 }

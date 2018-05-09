@@ -22,4 +22,9 @@ public class LegacyTechnoTemplateUpdatedEvent implements LegacyInterface {
         //TODO determiner si il y a un interet/risque à utiliser la même méthode que celle du module
         return new TemplateUpdatedEvent(key,legacyTemplate.toDomainTemplate(key),user);
     }
+
+    @Override
+    public String getKeyString() {
+        return getKey().toString("techno");
+    }
 }

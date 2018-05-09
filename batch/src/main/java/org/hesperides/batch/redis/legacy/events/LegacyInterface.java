@@ -8,4 +8,5 @@ public interface LegacyInterface {
 //    String ToDomainEvent(User user);
     TemplateContainer.Key getKey();
     Object toDomainEvent(User user);
+    String getKeyString();
 }
