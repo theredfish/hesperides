@@ -22,7 +22,8 @@ package org.hesperides.infrastructure.mongo.technos.commands;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.hesperides.domain.technos.TechnoCreatedEvent;
-import org.hesperides.domain.technos.TemplateAddedToTechnoEvent;
+import org.hesperides.domain.technos.TechnoDeletedEvent;
+import org.hesperides.domain.technos.TemplateCreatedEvent;
 import org.hesperides.domain.technos.commands.TechnoCommandsRepository;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
@@ -53,16 +54,12 @@ public class MongoTechnoCommandsRepository implements TechnoCommandsRepository {
         repository.save(TechnoDocument.fromDomain(event.getTechno()));
     }
 
+
+
     @EventSourcingHandler
     @Override
-    public void on(TemplateAddedToTechnoEvent event) {
+    public void on(TechnoDeletedEvent event) {
         TemplateContainer.Key key = event.getTechnoKey();
-        TechnoDocument technoDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
-        TemplateDocument newTemplate = TemplateDocument.fromDomain(event.getTemplate());
-        if (technoDocument.getTemplates() == null) {
-            technoDocument.setTemplates(new ArrayList<>());
-        }
-        technoDocument.getTemplates().add(newTemplate);
-        repository.save(technoDocument);
+        repository.deleteByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
     }
 }

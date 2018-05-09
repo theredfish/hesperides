@@ -44,9 +44,11 @@ public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
         TemplateContainer.Key key = event.getModule().getKey();
         ModuleDocument existingModule = moduleRepository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
         List<TechnoDocument> technos = technoQueriesRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
-        ModuleDocument updatedModule = ModuleDocument.fromDomain(event.getModule(), technos);
-        updatedModule.setId(existingModule.getId());
-        moduleRepository.save(updatedModule);
+        existingModule.setTechnos(technos);
+        existingModule.setVersionId(existingModule.getVersionId() +1);
+//        ModuleDocument updatedModule = ModuleDocument.fromDomain(event.getModule(), technos);
+//        updatedModule.setId(existingModule.getId());
+        moduleRepository.save(existingModule);
     }
 
     @EventSourcingHandler

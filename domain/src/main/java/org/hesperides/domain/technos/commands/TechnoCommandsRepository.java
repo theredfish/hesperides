@@ -22,12 +22,12 @@ package org.hesperides.domain.technos.commands;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.hesperides.domain.technos.TechnoCreatedEvent;
-import org.hesperides.domain.technos.TemplateAddedToTechnoEvent;
+import org.hesperides.domain.technos.TechnoDeletedEvent;
 
 public interface TechnoCommandsRepository {
     @EventSourcingHandler
     void on(TechnoCreatedEvent event);
 
     @EventSourcingHandler
-    void on(TemplateAddedToTechnoEvent event);
+    void on(TechnoDeletedEvent event);
 }

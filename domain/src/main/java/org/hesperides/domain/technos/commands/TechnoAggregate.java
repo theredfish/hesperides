@@ -7,11 +7,10 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateMember;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
-import org.hesperides.domain.technos.AddTemplateToTechnoCommand;
-import org.hesperides.domain.technos.CreateTechnoCommand;
-import org.hesperides.domain.technos.TechnoCreatedEvent;
-import org.hesperides.domain.technos.TemplateAddedToTechnoEvent;
+import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.Template;
 
@@ -38,7 +37,7 @@ class TechnoAggregate implements Serializable {
     }
 
     @CommandHandler
-    public void addTemplate(AddTemplateToTechnoCommand command) {
+    public void addTemplate(CreateTemplateCommand command) {
         log.debug("Applying AddTemplateToTechnoCommand...");
 
         // Vérifie qu'on a pas déjà un template avec ce nom
@@ -57,8 +56,46 @@ class TechnoAggregate implements Serializable {
                 1L,
                 template.getTemplateContainerKey());
 
-        apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), newTemplate, command.getUser()));
+        apply(new TemplateCreatedEvent(command.getTechnoKey(), newTemplate, command.getUser()));
     }
+
+    @CommandHandler
+    @SuppressWarnings("unused")
+    public void updateTemplate(UpdateTemplateCommand command) {
+        log.debug("Applying update template command...");
+
+        // check qu'on a déjà un template avec ce nom, sinon erreur:
+        if (!templates.containsKey(command.getTemplate().getName())) {
+            throw new TemplateNotFoundException(key, command.getTemplate().getName());
+        }
+        // Vérifie que le template n'a été modifié entre temps
+        Long expectedVersionId = templates.get(command.getTemplate().getName()).getVersionId();
+        Long actualVersionId = command.getTemplate().getVersionId();
+        if (!expectedVersionId.equals(actualVersionId)) {
+            throw new OutOfDateVersionException(expectedVersionId, actualVersionId);
+        }
+
+        // Met à jour le version_id
+        Template templateWithUpdatedVersionId = new Template(
+                command.getTemplate().getName(),
+                command.getTemplate().getFilename(),
+                command.getTemplate().getLocation(),
+                command.getTemplate().getContent(),
+                command.getTemplate().getRights(),
+                command.getTemplate().getVersionId() + 1,
+                command.getTechnoKey());
+
+        apply(new TemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
+    }
+    @CommandHandler
+    @SuppressWarnings("unused")
+    public void deleteTemplate(DeleteTemplateCommand command) {
+        // si le template n'existe pas, cette command n'a pas d'effet de bord.
+        if (this.templates.containsKey(command.getTemplateName())) {
+            apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
+        }
+    }
+
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
@@ -69,8 +106,22 @@ class TechnoAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    public void on(TemplateAddedToTechnoEvent event) {
+    public void on(TemplateCreatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template added to techno (aggregate is live ? {})", isLive());
     }
+
+    @EventSourcingHandler
+    private void on(TemplateUpdatedEvent event){
+        this.templates.put(event.getTemplate().getName(),event.getTemplate());
+        log.debug("template update");
+    }
+
+    @EventSourcingHandler
+    private void on(TemplateDeletedEvent event) {
+        this.templates.remove(event.getTemplateName());
+        log.debug("template ajouté. ");
+    }
+
+
 }

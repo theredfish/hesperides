@@ -17,4 +17,6 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
     TechnoDocument findByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
 
     TechnoDocument findByNameAndVersionAndWorkingCopyAndTemplatesName(String name, String version, boolean isWorkingCopy, String templateName);
+
+    void deleteByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
 }
