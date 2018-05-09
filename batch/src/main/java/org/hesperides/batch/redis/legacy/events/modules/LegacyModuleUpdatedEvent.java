@@ -1,8 +1,30 @@
 package org.hesperides.batch.redis.legacy.events.modules;
 
-public class LegacyModuleUpdatedEvent {
+import com.google.gson.annotations.SerializedName;
+import org.hesperides.batch.redis.legacy.entities.LegacyModule;
+import org.hesperides.batch.redis.legacy.events.LegacyInterface;
+import org.hesperides.domain.modules.ModuleUpdatedEvent;
+import org.hesperides.domain.security.User;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
-    public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyUpdatedEvent";
+public class LegacyModuleUpdatedEvent implements LegacyInterface {
+
+    @SerializedName("updated")
+    LegacyModule module;
 
 
+    @Override
+    public TemplateContainer.Key getKey() {
+        return module.getKey();
+    }
+
+    @Override
+    public Object toDomainEvent(User user) {
+        return new ModuleUpdatedEvent(module.toDomainModule(null),user);
+    }
+
+    @Override
+    public String getKeyString() {
+        return module.getKey().toString("module");
+    }
 }

@@ -66,7 +66,7 @@ abstract class MigrateAbstractService {
                 GenericEventMessage<Object> eventMessage = new GenericEventMessage<>(legacyInterface.toDomainEvent(user), MetaData.emptyInstance());
                 String aggregateId = legacyInterface.getKeyString();
                 // TODO : trouver mieux que events.indexOf(event)
-                domainEventMessage.add(new GenericDomainEventMessage<Object>(AGGREGATE_TYPE, aggregateId, events.indexOf(event), eventMessage, supplier));
+                domainEventMessage.add(new GenericDomainEventMessage<>(AGGREGATE_TYPE, aggregateId, events.indexOf(event), eventMessage, supplier));
             }
             catch (Exception e){
                 log.severe(e.getLocalizedMessage());

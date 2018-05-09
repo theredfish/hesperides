@@ -20,12 +20,13 @@ public class LegacyTemplate {
     @SerializedName("version_id")
     Long versionId;
 
-    public Template toDomainTemplate(TemplateContainer.Key key){
-        return new Template(name,filename,location,content,rights,versionId,key);
+    public Template toDomainTemplate(TemplateContainer.Key key) {
+        return new Template(name, filename, location, content, rights, versionId, key);
     }
 
-    public TemplateContainer.Key getKeyFromNamespace(){
+    public TemplateContainer.Key getKeyFromNamespace() {
         String[] temp = namespace.split("#");
-        return new TemplateContainer.Key(temp[1],temp[2],temp[3] == "WORKINGCOPY" ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        TemplateContainer.Key key = new TemplateContainer.Key(temp[1], temp[2], "WORKINGCOPY".equals(temp[3]) ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        return key;
     }
 }

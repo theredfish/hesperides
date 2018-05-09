@@ -3,11 +3,11 @@ package org.hesperides.batch.redis.legacy.entities;
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 public class LegacyModule  {
@@ -16,7 +16,7 @@ public class LegacyModule  {
     String version;
     @SerializedName("working_copy")
     boolean workingCopy;
-    List<Techno> technos;
+    List<LegacyTechno> technos;
     @SerializedName("version_id")
     Long versionId;
 
@@ -36,7 +36,8 @@ public class LegacyModule  {
             legacyTemplates.forEach(legacyTemplate -> templates.add(legacyTemplate.toDomainTemplate(key)));
         }
         //TODO implémentation techno
-        return new Module(getKey(),templates,null,versionId);
+        return new Module(getKey(),templates,
+                technos !=null ? technos.stream().map(LegacyTechno::toDomainInstance).collect(Collectors.toList()):null,versionId);
 
     }
 }
