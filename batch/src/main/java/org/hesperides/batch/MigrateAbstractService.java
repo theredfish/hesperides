@@ -55,7 +55,6 @@ abstract class MigrateAbstractService {
             log.info("Processing: " + key + " (" + list.size() + (list.size() > 1 ? " events)" : " event)"));
             eventBus.publish(list);
             pushIntoSet(key);
-            log.info(list.);
         }
         catch (Exception e){
             log.severe(e.getMessage());
@@ -103,7 +102,6 @@ abstract class MigrateAbstractService {
 
     protected void pushIntoSet(String key){
         stringTemplate.opsForSet().add(CONVERTED_SET,key);
-        log.info(String.valueOf(stringTemplate.opsForSet().size(CONVERTED_SET)));
     }
 
 }
