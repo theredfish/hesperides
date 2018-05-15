@@ -20,3 +20,10 @@ ldap:
   connectTimeout: ${LDAP_CONNECT_TIMEOUT:1000}
   readTimeout: ${LDAP_READ_TIMEOUT:1000}
 liquibase.enabled: false
+
+logging:
+  file: C:\Users\adrien_auffredou\Desktop\hesperides.txt
+  level:
+    root: INFO
+#    org.hesperides.batch: ERROR
+#    org.hesperides: INFO

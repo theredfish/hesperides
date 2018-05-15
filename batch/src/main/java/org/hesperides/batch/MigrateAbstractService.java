@@ -1,7 +1,6 @@
 package org.hesperides.batch;
 
 import com.google.gson.Gson;
-import com.sun.org.apache.xerces.internal.xs.datatypes.ObjectList;
 import lombok.extern.java.Log;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
@@ -10,7 +9,6 @@ import org.axonframework.messaging.MetaData;
 import org.hesperides.batch.redis.legacy.entities.LegacyEvent;
 import org.hesperides.batch.redis.legacy.events.LegacyInterface;
 import org.hesperides.domain.security.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -30,25 +28,34 @@ abstract class MigrateAbstractService {
     static String AGGREGATE_TYPE;
     static String PATTERN;
     static Map<String, Type> LEGACY_EVENTS_DICTIONARY;
+    static String CONVERTED_SET;
 
 
+    RedisTemplate stringTemplate;
 
 
-    void migrate(RedisTemplate<String, LegacyEvent> redisTemplate,EmbeddedEventStore eventBus) {
+    void migrate(RedisTemplate<String, LegacyEvent> redisTemplate, EmbeddedEventStore eventBus, RedisTemplate<String,String> stringTemplate) {
+        this.stringTemplate = stringTemplate;
         this.eventBus = eventBus;
         log.info("migrate "  + PATTERN);
         Set<String> keys = redisTemplate.keys(PATTERN + "*");
-        keys.forEach(key -> processOps(key,redisTemplate.opsForList()));
+
+        keys.forEach(key -> {
+            if(!isAlreadyConverted(key))
+                processOps(key,redisTemplate.opsForList());
+        });
 
     }
 
-    private void processOps(String key, ListOperations<String, LegacyEvent> redisOperations){
+    protected void processOps(String key, ListOperations<String, LegacyEvent> redisOperations){
         List<GenericDomainEventMessage<Object>> list;
         list = convertToDomainEvent(redisOperations.range(key,0,redisOperations.size(key)));
 
         try{
             log.info("Processing: " + key + " (" + list.size() + (list.size() > 1 ? " events)" : " event)"));
             eventBus.publish(list);
+            pushIntoSet(key);
+            log.info(list.);
         }
         catch (Exception e){
             log.severe(e.getMessage());
@@ -65,8 +72,7 @@ abstract class MigrateAbstractService {
                 User user = new User(event.getUser());
                 GenericEventMessage<Object> eventMessage = new GenericEventMessage<>(legacyInterface.toDomainEvent(user), MetaData.emptyInstance());
                 String aggregateId = legacyInterface.getKeyString();
-                // TODO : trouver mieux que events.indexOf(event)
-                domainEventMessage.add(new GenericDomainEventMessage<>(AGGREGATE_TYPE, aggregateId, events.indexOf(event), eventMessage, supplier));
+                domainEventMessage.add(new GenericDomainEventMessage<>(AGGREGATE_TYPE, aggregateId, domainEventMessage.size(), eventMessage, supplier));
             }
             catch (Exception e){
                 log.severe(e.getLocalizedMessage());
@@ -87,6 +93,17 @@ abstract class MigrateAbstractService {
             throw new NotImplementedException();
         }
         return result;
+    }
+
+    protected Boolean isAlreadyConverted(String key){
+//        RedisTemplate<String,String> rt = new RedisTemplate<>();
+        Boolean bob =  stringTemplate.opsForSet().isMember(CONVERTED_SET,key);
+        return bob;
+    }
+
+    protected void pushIntoSet(String key){
+        stringTemplate.opsForSet().add(CONVERTED_SET,key);
+        log.info(String.valueOf(stringTemplate.opsForSet().size(CONVERTED_SET)));
     }
 
 }
