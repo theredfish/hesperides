@@ -11,6 +11,7 @@ import org.hesperides.batch.redis.legacy.events.LegacyInterface;
 import org.hesperides.domain.security.User;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.client.RestTemplate;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.lang.reflect.Type;
@@ -32,6 +33,8 @@ abstract class MigrateAbstractService {
 
 
     RedisTemplate stringTemplate;
+    RestTemplate legacyRestTemplate;
+    RestTemplate rebornRestTemplate;
 
 
     void migrate(RedisTemplate<String, LegacyEvent> redisTemplate, EmbeddedEventStore eventBus, RedisTemplate<String,String> stringTemplate) {
@@ -41,8 +44,10 @@ abstract class MigrateAbstractService {
         Set<String> keys = redisTemplate.keys(PATTERN + "*");
 
         keys.forEach(key -> {
+            log.info(key);
             if(!isAlreadyConverted(key))
-                processOps(key,redisTemplate.opsForList());
+                processOps(key, redisTemplate.opsForList());
+
         });
 
     }
@@ -54,7 +59,7 @@ abstract class MigrateAbstractService {
         try{
             log.info("Processing: " + key + " (" + list.size() + (list.size() > 1 ? " events)" : " event)"));
             eventBus.publish(list);
-            pushIntoSet(key);
+            verify(key);
         }
         catch (Exception e){
             log.severe(e.getMessage());
@@ -100,7 +105,8 @@ abstract class MigrateAbstractService {
         return bob;
     }
 
-    protected void pushIntoSet(String key){
+    protected void verify(String key){
+
         stringTemplate.opsForSet().add(CONVERTED_SET,key);
     }
 

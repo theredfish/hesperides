@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.batch.LegacyModule;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
 @Value

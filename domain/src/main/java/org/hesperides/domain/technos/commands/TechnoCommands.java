@@ -27,9 +27,8 @@ public class TechnoCommands {
     }
 
     public void addTemplate(TemplateContainer.Key technoKey, Template template, User user) {
-        commandGateway.sendAndWait(new CreateTemplateCommand(technoKey, template, user));
+        commandGateway.sendAndWait(new AddTemplateToTechnoCommand(technoKey, template, user));
     }
-
     public void updateTemplate(Techno.Key key, Template template,User user){
         commandGateway.sendAndWait(new UpdateTechnoTemplateCommand(key,template,user));
     }

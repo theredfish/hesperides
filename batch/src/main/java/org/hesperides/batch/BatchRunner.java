@@ -8,15 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SetOperations;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
+import org.springframework.web.client.RestTemplate;
 
 @Log
 @Component
@@ -41,11 +35,11 @@ public class BatchRunner {
 //    }
 
     @Bean
-    ApplicationRunner moduleImport(RedisTemplate<String,LegacyEvent> legacyTemplate,RedisTemplate<String,String> stringTemplate){
+    ApplicationRunner moduleImport(RedisTemplate<String,LegacyEvent> legacyTemplate,RedisTemplate<String,String> stringTemplate,RestTemplate restTemplate){
         return titledRunner("phase 2",args ->{
-            MigrateAbstractService migrateTechno = new MigrateTechnoService();
-            migrateTechno.migrate(legacyTemplate,eventBus,stringTemplate);
-            MigrateAbstractService migrateModule = new MigrateModuleService();
+//            MigrateAbstractService migrateTechno = new MigrateTechnoService();
+//            migrateTechno.migrate(legacyTemplate,eventBus,stringTemplate);
+            MigrateAbstractService migrateModule = new MigrateModuleService(restTemplate);
             migrateModule.migrate(legacyTemplate,eventBus,stringTemplate);
 //            MigrateAbstractService migratePlatform = new MigratePlatformService();
 //            migratePlatform.migrate(legacyTemplate,eventBus);

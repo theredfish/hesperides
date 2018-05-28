@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.technos.entities.Techno;
+
 import java.util.List;
 
 @Value

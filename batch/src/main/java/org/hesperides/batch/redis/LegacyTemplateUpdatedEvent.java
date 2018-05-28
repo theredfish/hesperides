@@ -2,7 +2,6 @@ package org.hesperides.batch.redis;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import org.hesperides.batch.LegacyModule;
 import org.hesperides.domain.templatecontainer.entities.Template;
 //import org.hibernate.validator.constraints.NotEmpty;
 //

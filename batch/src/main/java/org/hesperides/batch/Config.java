@@ -1,30 +1,35 @@
 package org.hesperides.batch;
 
+import lombok.extern.java.Log;
 import org.hesperides.batch.redis.legacy.entities.LegacyEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Log
 @Configuration
 public class Config {
-    @Value("${REDIS_PORT}")
+    @Value("${spring.redis.port}")
     private String redisPort;
-    @Value("${REDIS_HOST}")
+    @Value("${spring.redis.host}")
     private String redisHost;
 
 
     @Bean
-    RedisConnectionFactory redisConnectionFactory(){
+    RedisConnectionFactory redisConnectionFactory() {
         JedisConnectionFactory con = new JedisConnectionFactory();
         con.setHostName(redisHost);
         con.setPort(Integer.parseInt(redisPort));
@@ -32,8 +37,8 @@ public class Config {
     }
 
     @Bean
-    RedisTemplate<String,LegacyEvent> legacyTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String,LegacyEvent> template = new RedisTemplate<>();
+    RedisTemplate<String, LegacyEvent> legacyTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, LegacyEvent> template = new RedisTemplate<>();
 
         RedisSerializer<LegacyEvent> values = new Jackson2JsonRedisSerializer<>(LegacyEvent.class);
         RedisSerializer keys = new StringRedisSerializer();
@@ -46,9 +51,10 @@ public class Config {
 
         return template;
     }
+
     @Bean
-    RedisTemplate<String,String> stringTemplate(RedisConnectionFactory redisConnectionFactory){
-        RedisTemplate<String,String> template = new RedisTemplate<>();
+    RedisTemplate<String, String> stringTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
 
         RedisSerializer wtf = new StringRedisSerializer();
@@ -57,5 +63,18 @@ public class Config {
         template.setValueSerializer(wtf);
         template.setHashValueSerializer(wtf);
         return template;
+    }
+
+    @Bean
+    RestTemplate restTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        List<HttpMessageConverter<?>> converters = restTemplate.getMessageConverters().stream()
+                .filter(httpMessageConverter -> !(httpMessageConverter instanceof MappingJackson2HttpMessageConverter))
+                .collect(Collectors.toList());
+
+        converters.add(new GsonHttpMessageConverter());
+        restTemplate.setMessageConverters(converters);
+
+        return restTemplate;
     }
 }

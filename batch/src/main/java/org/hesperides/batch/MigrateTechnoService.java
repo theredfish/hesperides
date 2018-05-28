@@ -25,7 +25,7 @@ public class MigrateTechnoService extends MigrateAbstractService {
     static {
         AGGREGATE_TYPE = "TechnoAggregate";
         PATTERN = "template";
-        CONVERTED_SET = "a-"+PATTERN;
+        CONVERTED_SET = "a-"+PATTERN+"-set";
         LEGACY_EVENTS_DICTIONARY = new HashMap<>();
 
         LEGACY_EVENTS_DICTIONARY.put("com.vsct.dt.hesperides.templating.packages.TemplateCreatedEvent",LegacyTechnoTemplateCreatedEvent.class);

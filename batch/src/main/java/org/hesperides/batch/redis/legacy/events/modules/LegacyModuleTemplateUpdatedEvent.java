@@ -6,7 +6,6 @@ import org.hesperides.batch.redis.legacy.entities.LegacyTemplate;
 import org.hesperides.batch.redis.legacy.events.LegacyInterface;
 import org.hesperides.domain.modules.TemplateUpdatedEvent;
 import org.hesperides.domain.security.User;
-import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
 @Value
