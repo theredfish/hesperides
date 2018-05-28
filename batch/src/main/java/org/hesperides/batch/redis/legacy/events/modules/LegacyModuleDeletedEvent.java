@@ -16,7 +16,10 @@ public class LegacyModuleDeletedEvent implements LegacyInterface {
 
     @Override
     public TemplateContainer.Key getKey() {
-        return new TemplateContainer.Key(moduleName,moduleVersion,workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        return new TemplateContainer.Key(
+                moduleName,
+                moduleVersion,
+                workingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
     }
 
     @Override

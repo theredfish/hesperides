@@ -1,9 +1,12 @@
 package org.hesperides.infrastructure.mongo.technos;
 
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.hesperides.domain.Profiles.*;
@@ -12,11 +15,15 @@ import static org.hesperides.domain.Profiles.*;
 @Repository
 public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, String> {
 
-    Optional<TechnoDocument> findOptionalByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+    Optional<TechnoDocument> findOptionalByKey(KeyDocument key);
 
-    TechnoDocument findByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+    TechnoDocument findByKey(KeyDocument key);
 
-    TechnoDocument findByNameAndVersionAndWorkingCopyAndTemplatesName(String name, String version, boolean isWorkingCopy, String templateName);
+    Optional<TechnoDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
 
-    void deleteByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+    List<TechnoDocument> findAllByKeyIn(List<KeyDocument> keys);
+
+    void deleteByKey(KeyDocument key);
+
+    List<TechnoDocument> findAllByKeyNameLikeAndAndKeyVersionLike(String name, String version, Pageable pageable);
 }

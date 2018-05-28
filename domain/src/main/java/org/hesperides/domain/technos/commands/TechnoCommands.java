@@ -22,8 +22,7 @@ public class TechnoCommands {
         this.commandGateway = commandGateway;
     }
 
-    public Techno.Key createTechno(TemplateContainer.Key technoKey, User user) {
-        Techno techno = new Techno(technoKey, null);
+    public Techno.Key createTechno(Techno techno, User user) {
         return commandGateway.sendAndWait(new CreateTechnoCommand(techno, user));
     }
 
@@ -31,12 +30,15 @@ public class TechnoCommands {
         commandGateway.sendAndWait(new CreateTemplateCommand(technoKey, template, user));
     }
 
-    //TODO répercuter les changements dans la couche applicationnnnn
-    public void updateTemplateInWorkingCopy(Techno.Key key, Template template, User user) {
-        commandGateway.sendAndWait(new UpdateTemplateCommand(key, template, user));
+    public void updateTemplate(Techno.Key key, Template template,User user){
+        commandGateway.sendAndWait(new UpdateTechnoTemplateCommand(key,template,user));
     }
 
-    public void deleteTechno(TemplateContainer.Key technoKey, User user){
-        commandGateway.sendAndWait(new DeleteTechnoCommand(technoKey,user));
+    public void deleteTechno(TemplateContainer.Key technoKey, User user) {
+        commandGateway.sendAndWait(new DeleteTechnoCommand(technoKey, user));
+    }
+
+    public void deleteTemplate(Techno.Key key, String templateName, User user) {
+        commandGateway.sendAndWait(new DeleteTechnoTemplateCommand(key, templateName, user));
     }
 }

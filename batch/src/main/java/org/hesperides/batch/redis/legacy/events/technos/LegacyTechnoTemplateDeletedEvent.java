@@ -14,7 +14,8 @@ public class LegacyTechnoTemplateDeletedEvent implements LegacyInterface {
     public TemplateContainer.Key getKey() {
 
         String[] temp = namespace.split("#");
-        return new TemplateContainer.Key(temp[1],temp[2], "WORKINGCOPY".equals(temp[3]) ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        return new TemplateContainer.Key(temp[1],temp[2],
+                "WORKINGCOPY".equals(temp[3]) ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
     }
 
     @Override

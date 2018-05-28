@@ -2,9 +2,6 @@ spring:
   application.name: HESPERIDES
   boot.admin.client.enabled: false
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
-  redis:
-    host: ${REDIS_HOST:10.98.208.75}
-    port: ${REDIS_PORT:58379}
 
 management.security.enabled: false
 
@@ -19,11 +16,11 @@ ldap:
   usernameAttribute: ${LDAP_USERNAME_ATTRIBUTE}
   connectTimeout: ${LDAP_CONNECT_TIMEOUT:1000}
   readTimeout: ${LDAP_READ_TIMEOUT:1000}
+
 liquibase.enabled: false
 
 logging:
-  file: C:\Users\adrien_auffredou\Desktop\hesperides.txt
+  file: /var/log/hesperides.log
   level:
     root: INFO
-#    org.hesperides.batch: ERROR
 #    org.hesperides: INFO

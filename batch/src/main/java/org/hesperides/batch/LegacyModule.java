@@ -1,15 +1,9 @@
 package org.hesperides.batch;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.technos.entities.Techno;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
-import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 
 @Value
@@ -23,8 +17,8 @@ public class LegacyModule {
     @SerializedName("version_id")
     Long versionId;
 
-    public Module.Type getModuleType() {
-        return workingCopy ? Module.Type.workingcopy : Module.Type.release;
+    public Module.VersionType getModuleType() {
+        return workingCopy ? Module.VersionType.workingcopy : Module.VersionType.release;
     }
 
     public Module.Key getKey(){

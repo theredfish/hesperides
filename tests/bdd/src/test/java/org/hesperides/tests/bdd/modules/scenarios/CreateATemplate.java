@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class CreateATemplate extends CucumberSpringBean implements En {
 
     private TemplateIO templateInput;
-    private ResponseEntity<TemplateIO> response;
+    private ResponseEntity response;
 
     @Autowired
     private ExistingModuleContext existingModule;
@@ -22,17 +22,22 @@ public class CreateATemplate extends CucumberSpringBean implements En {
     public CreateATemplate() {
         Given("^a template to create$", () -> {
             TemplateIO.FileRightsIO rights = new TemplateIO.FileRightsIO(true, true, true);
-            templateInput = new TemplateIO(null, "templateName", "template.name", "template.location", "content",
+            templateInput = new TemplateIO("templateName", null, "template.name", "template.location", "content",
                     new TemplateIO.RightsIO(rights, rights, rights), 0L);
         });
 
         When("^adding a new template$", () -> {
-            response = rest.getTestRest().postForEntity(existingModule.getModuleLocation() + "/templates", templateInput, TemplateIO.class);
+            addTemplateToExistingModule(false);
+        });
+
+        When("^adding this template twice$", () -> {
+            addTemplateToExistingModule(false);
+            addTemplateToExistingModule(true);
         });
 
         Then("^the template is successfully created and the module contains the new template$", () -> {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
-            TemplateIO templateOutput = response.getBody();
+            TemplateIO templateOutput = (TemplateIO) response.getBody();
             assertEquals("modules#" + existingModule.getModuleKey().getName() + "#" + existingModule.getModuleKey().getVersion() + "#WORKINGCOPY", templateOutput.getNamespace());
             assertEquals(templateInput.getName(), templateOutput.getName());
             assertEquals(templateInput.getFilename(), templateOutput.getFilename());
@@ -41,9 +46,17 @@ public class CreateATemplate extends CucumberSpringBean implements En {
             TemplateUtils.assertRights(templateInput.getRights(), templateOutput.getRights());
             assertEquals(1L, templateOutput.getVersionId().longValue());
         });
+
+        Then("^the second one is rejected$", () -> {
+            assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        });
     }
 
-    /**
-     * TODO Tester la tentative de création d'un template qui existe déjà
-     */
+    private void addTemplateToExistingModule(boolean isGoingToThrowAnError) {
+        if (isGoingToThrowAnError) {
+            response = rest.doWithErrorHandlerDisabled(rest -> rest.postForEntity(existingModule.getModuleLocation() + "/templates", templateInput, String.class));
+        } else {
+            response = rest.getTestRest().postForEntity(existingModule.getModuleLocation() + "/templates", templateInput, TemplateIO.class);
+        }
+    }
 }

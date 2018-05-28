@@ -30,14 +30,18 @@ class TechnoAggregate implements Serializable {
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
 
+    //COMMANDS
+
     @CommandHandler
+    @SuppressWarnings("unused")
     public TechnoAggregate(CreateTechnoCommand command) {
         log.debug("Applying CreateTechnoCommand...");
         apply(new TechnoCreatedEvent(command.getTechno(), command.getUser()));
     }
 
     @CommandHandler
-    public void addTemplate(CreateTemplateCommand command) {
+    @SuppressWarnings("unused")
+    public void on(AddTemplateToTechnoCommand command) {
         log.debug("Applying AddTemplateToTechnoCommand...");
 
         // Vérifie qu'on a pas déjà un template avec ce nom
@@ -56,12 +60,12 @@ class TechnoAggregate implements Serializable {
                 1L,
                 template.getTemplateContainerKey());
 
-        apply(new TemplateCreatedEvent(command.getTechnoKey(), newTemplate, command.getUser()));
+        apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), newTemplate, command.getUser()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void updateTemplate(UpdateTemplateCommand command) {
+    public void on(UpdateTechnoTemplateCommand command) {
         log.debug("Applying update template command...");
 
         // check qu'on a déjà un template avec ce nom, sinon erreur:
@@ -85,17 +89,27 @@ class TechnoAggregate implements Serializable {
                 command.getTemplate().getVersionId() + 1,
                 command.getTechnoKey());
 
-        apply(new TemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
+        apply(new TechnoTemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
     }
+
+
     @CommandHandler
     @SuppressWarnings("unused")
-    public void deleteTemplate(DeleteTemplateCommand command) {
+    public void on(DeleteTechnoCommand command) {
+        log.debug("Applying delete techno command...");
+        apply(new TechnoDeletedEvent(command.getTechnoKey(), command.getUser()));
+    }
+
+    @CommandHandler
+    @SuppressWarnings("unused")
+    public void on(DeleteTechnoTemplateCommand command) {
         // si le template n'existe pas, cette command n'a pas d'effet de bord.
         if (this.templates.containsKey(command.getTemplateName())) {
-            apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
+            apply(new TechnoTemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
         }
     }
 
+    //EVENTS
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
@@ -106,22 +120,29 @@ class TechnoAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    public void on(TemplateCreatedEvent event) {
+    public void on(TemplateAddedToTechnoEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
-        log.debug("Template added to techno (aggregate is live ? {})", isLive());
+        log.debug("Template ajouté à la techno (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
-    private void on(TemplateUpdatedEvent event){
-        this.templates.put(event.getTemplate().getName(),event.getTemplate());
-        log.debug("template update");
+    @SuppressWarnings("unused")
+    private void on(TechnoTemplateUpdatedEvent event) {
+        this.templates.put(event.getTemplate().getName(), event.getTemplate());
+        log.debug("Template mis à jour. ");
     }
 
     @EventSourcingHandler
-    private void on(TemplateDeletedEvent event) {
+    @SuppressWarnings("unused")
+    private void on(TechnoDeletedEvent event) {
+        this.key = event.getTechnoKey();
+        log.debug("Techno deleted (aggregate is live ? {})", isLive());
+    }
+
+    @EventSourcingHandler
+    @SuppressWarnings("unused")
+    private void on(TechnoTemplateDeletedEvent event) {
         this.templates.remove(event.getTemplateName());
-        log.debug("template ajouté. ");
+        log.debug("Template supprimé. ");
     }
-
-
 }

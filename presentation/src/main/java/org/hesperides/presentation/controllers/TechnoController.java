@@ -26,16 +26,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.hesperides.application.technos.TechnoUseCases;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.technos.exception.TechnoNotFoundException;
 import org.hesperides.domain.technos.queries.TechnoView;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.presentation.io.PartialTemplateIO;
+import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromPrincipal;
 
@@ -61,7 +69,7 @@ public class TechnoController extends BaseController {
 
         log.info("Add a template to a techno working copy {} {}", technoName, technoVersion);
 
-        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.Type.workingcopy);
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         technoUseCases.addTemplate(technoKey, templateInput.toDomainInstance(technoKey), fromPrincipal(currentUser));
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateInput.getName())
                 .map(TemplateIO::fromTemplateView)
@@ -70,16 +78,93 @@ public class TechnoController extends BaseController {
         return ResponseEntity.created(technoKey.getURI(Techno.KEY_PREFIX)).body(templateOutput);
     }
 
-    @ApiOperation("Get info for a given techno release/working-copy")
-    @GetMapping(path = "/{techno_name}/{techno_version}/{techno_type}")
-    public ResponseEntity<TechnoView> getTechnoInfo(
-            @PathVariable("techno_name") final String technoName,
-            @PathVariable("techno_version") final String technoVersion,
-            @PathVariable("techno_type") final Techno.Type technoType){
-        log.debug("getTechnoInfo technoName: {}, technoVersion: {}, technoType: {}", technoName, technoVersion, technoType);
-        final Techno.Key technoKey = new Techno.Key(technoName, technoVersion, technoType);
-        ResponseEntity<TechnoView> techno = technoUseCases.getTechno(technoKey).map(ResponseEntity::ok).orElseThrow(() -> new TechnoNotFoundException(technoKey));
-        log.debug("return getTechnoInfo: {}", techno.getBody().toString());
-        return techno;
+    @ApiOperation("Update a template")
+    @PutMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
+    public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Principal currentUser,
+                                                                  @PathVariable("techno_name") final String technoName,
+                                                                  @PathVariable("techno_version") final String technoVersion,
+                                                                  @Valid @RequestBody final TemplateIO templateInput){
+
+        TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
+        Template template = templateInput.toDomainInstance(technoKey);
+        technoUseCases.updateTemplateInWorkingCopy(technoKey, template, fromPrincipal(currentUser));
+
+        TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, template.getName())
+                .map(TemplateIO::fromTemplateView)
+                .orElseThrow(() -> new TemplateNotFoundException(technoKey, template.getName()));
+
+        return ResponseEntity.ok(templateOutput);
+
+    }
+
+    @ApiOperation("Delete a techno")
+    @DeleteMapping(path = "/{techno_name}/{techno_version}/{version_type}")
+    public ResponseEntity deleteTechno(Principal currentUser,
+                                       @PathVariable("techno_name") final String technoName,
+                                       @PathVariable("techno_version") final String technoVersion,
+                                       @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
+
+        log.info("deleteTechno {} {} {}", technoName, technoVersion, versionType);
+
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
+        technoUseCases.deleteTechno(technoKey, fromPrincipal(currentUser));
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates/{template_name}")
+    @ApiOperation("Delete template in the working copy of a version")
+    public ResponseEntity deleteTemplateInWorkingCopy(Principal currentUser,
+                                                      @PathVariable("techno_name") final String technoName,
+                                                      @PathVariable("techno_version") final String technoVersion,
+                                                      @PathVariable("template_name") final String templateName) {
+
+        TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
+        this.technoUseCases.deleteTemplate(technoKey, templateName, fromPrincipal(currentUser));
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @ApiOperation("Get techno templates")
+    @GetMapping(path = "/{techno_name}/{techno_version}/{version_type}/templates")
+    public ResponseEntity<List<PartialTemplateIO>> getTemplates(@PathVariable("techno_name") final String technoName,
+                                                                @PathVariable("techno_version") final String technoVersion,
+                                                                @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
+
+        log.info("getTemplates {} {} {}", technoName, technoVersion, versionType);
+
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
+        List<TemplateView> templateViews = technoUseCases.getTemplates(technoKey);
+        return ResponseEntity.ok(templateViews.stream().map(PartialTemplateIO::fromTemplateView).collect(Collectors.toList()));
+    }
+
+    @ApiOperation("Create a release from an existing workingcopy")
+    @PostMapping(path = "/create_release")
+    public ResponseEntity<TechnoIO> releaseTechno(Principal currentUser,
+                                                  @RequestParam("techno_name") final String technoName,
+                                                  @RequestParam("techno_version") final String technoVersion) {
+
+        log.info("releaseTechno {} {}", technoName, technoVersion);
+
+        TemplateContainer.Key existingTechnoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
+        TechnoView technoView = technoUseCases.releaseTechno(existingTechnoKey, fromPrincipal(currentUser));
+        TechnoIO technoOutput = TechnoIO.fromTechnoView(technoView);
+
+        URI releasedTechnoLocation = technoView.toDomainInstance().getKey().getURI(Techno.KEY_PREFIX);
+        return ResponseEntity.created(releasedTechnoLocation).body(technoOutput);
+    }
+
+    @ApiOperation("Search for technos")
+    @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<TechnoIO>> search(@RequestParam("terms") final String input) {
+
+        log.debug("search technos {}", input);
+
+        List<TechnoView> technoViews = technoUseCases.search(input);
+        List<TechnoIO> technoOutputs = technoViews != null
+                ? technoViews.stream().map(TechnoIO::fromTechnoView).collect(Collectors.toList())
+                : new ArrayList<>();
+
+        return ResponseEntity.ok(technoOutputs);
     }
 }

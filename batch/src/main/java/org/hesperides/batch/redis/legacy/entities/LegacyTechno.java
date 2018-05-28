@@ -10,6 +10,6 @@ public class LegacyTechno {
     Boolean working_copy;
 
     public Techno toDomainInstance() {
-        return new Techno(new TemplateContainer.Key(name, version, working_copy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release), null);
+        return new Techno(new TemplateContainer.Key(name, version, working_copy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release), null);
     }
 }

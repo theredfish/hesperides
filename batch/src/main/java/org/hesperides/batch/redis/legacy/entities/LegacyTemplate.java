@@ -26,7 +26,8 @@ public class LegacyTemplate {
 
     public TemplateContainer.Key getKeyFromNamespace() {
         String[] temp = namespace.split("#");
-        TemplateContainer.Key key = new TemplateContainer.Key(temp[1], temp[2], "WORKINGCOPY".equals(temp[3]) ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        TemplateContainer.Key key = new TemplateContainer.Key(temp[1], temp[2],
+                "WORKINGCOPY".equals(temp[3]) ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
         return key;
     }
 }

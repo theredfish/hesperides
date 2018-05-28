@@ -14,7 +14,10 @@ public class LegacyTechnoDeletedEvent implements LegacyInterface {
     @Override
     public TemplateContainer.Key getKey() {
 
-        return new TemplateContainer.Key(packageName,packageVersion,workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        return new TemplateContainer.Key(
+                packageName,
+                packageVersion,
+                workingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
 
     }
 
