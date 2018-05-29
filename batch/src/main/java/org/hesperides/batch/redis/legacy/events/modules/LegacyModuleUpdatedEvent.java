@@ -22,9 +22,4 @@ public class LegacyModuleUpdatedEvent implements LegacyInterface {
     public Object toDomainEvent(User user) {
         return new ModuleTechnosUpdatedEvent(getKey(),module.getTechno(),module.getVersionId(),user);
     }
-
-    @Override
-    public String getKeyString() {
-        return module.getKey().toString("module");
-    }
 }

@@ -19,11 +19,6 @@ public class LegacyTechnoTemplateUpdatedEvent implements LegacyInterface {
     @Override
     public Object toDomainEvent(User user) {
         TemplateContainer.Key key = getKey();
-        return new TemplateUpdatedEvent(key,legacyTemplate.toDomainTemplate(key),user);
-    }
-
-    @Override
-    public String getKeyString() {
-        return getKey().toString("techno");
+        return new TemplateUpdatedEvent(key, legacyTemplate.toDomainTemplate(key), user);
     }
 }

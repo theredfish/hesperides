@@ -12,15 +12,21 @@ import org.hesperides.batch.redis.legacy.events.technos.LegacyTechnoTemplateUpda
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.TechnoCreatedEvent;
 import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.presentation.io.TechnoIO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.support.BasicAuthorizationInterceptor;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-public class MigrateTechnoService extends MigrateAbstractService {
+public class TechnoMigrationService extends AbstractMigrationService {
 
     static {
         AGGREGATE_TYPE = "TechnoAggregate";
@@ -36,15 +42,23 @@ public class MigrateTechnoService extends MigrateAbstractService {
 
     }
 
+    public TechnoMigrationService(RestTemplate restTemplate) {
+        this.legacyRestTemplate = restTemplate;
+        this.refonteRestTemplate = restTemplate;
+        refonteRestTemplate.getInterceptors().add(new BasicAuthorizationInterceptor("tech", "password"));
+    }
+
     @Override
-    protected List<GenericDomainEventMessage<Object>> convertToDomainEvent(List<LegacyEvent> events) {
+    protected Map<TemplateContainer.Key,List<GenericDomainEventMessage<Object>>> convertToDomainEvent(List<LegacyEvent> events) {
+        Map map = new HashMap();
         List<GenericDomainEventMessage<Object>> domainEventMessages = new ArrayList<>();
         //Ce booléen force la création d'un nouvel évenement TechnoCreatedEvent, si l'évennement précédent celui traité est de type TemplatePackageDeletedEvent
         AtomicBoolean shouldCreateTechno = new AtomicBoolean(true);
+        TemplateContainer.Key key = convertToLegacyEvent(events.get(0)).getKey();
         events.forEach(event -> {
             try {
                 LegacyInterface legacyInterface = convertToLegacyEvent(event);
-                String aggregateId = legacyInterface.getKeyString();
+                String aggregateId = legacyInterface.getKey().toString();
                 Long timestamp = event.getTimestamp();
                 Supplier<Instant> supplier = () -> Instant.ofEpochMilli(timestamp);
                 User user = new User(event.getUser());
@@ -66,7 +80,24 @@ public class MigrateTechnoService extends MigrateAbstractService {
             }
         catch (Exception ignored){}
         });
+        map.put(key,domainEventMessages);
+        return map;
+    }
 
-        return domainEventMessages;
+    @Override
+    protected void verify(TemplateContainer.Key key){
+        //getURI met lui même le prefix au pluriel, et rajoute un / à la fin
+        final String legacyUri = LEGACY_URI + key.getURI("templates/package");
+        final String refonteUri = REFONTE_URI + key.getURI("templates/package");
+
+        checkTemplatesList(legacyUri, refonteUri);
+//
+//        ResponseEntity<TechnoIO> leg = legacyRestTemplate.getForEntity(legacyUri, TechnoIO.class);
+//        ResponseEntity<TechnoIO> ref = refonteRestTemplate.getForEntity(refonteUri, TechnoIO.class);
+//
+//        if (ref.getBody().equals(leg.getBody())) {
+//            checkTemplatesList(legacyUri, refonteUri);
+//        }
+
     }
 }

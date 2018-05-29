@@ -26,8 +26,4 @@ public class LegacyTechnoDeletedEvent implements LegacyInterface {
         return new TechnoDeletedEvent(getKey(),user);
     }
 
-    @Override
-    public String getKeyString() {
-        return getKey().toString("techno");
-    }
 }

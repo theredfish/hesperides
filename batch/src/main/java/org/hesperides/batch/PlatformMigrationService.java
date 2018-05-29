@@ -2,7 +2,7 @@ package org.hesperides.batch;
 
 import java.util.HashMap;
 
-public class MigratePlatformService extends MigrateAbstractService {
+public class PlatformMigrationService extends AbstractMigrationService {
     static {
         //TODO : être sur de cet aggregat
         AGGREGATE_TYPE = "PlatformAggregate";

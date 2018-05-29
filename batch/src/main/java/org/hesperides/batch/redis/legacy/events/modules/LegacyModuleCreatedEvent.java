@@ -6,7 +6,9 @@ import org.hesperides.batch.redis.legacy.entities.LegacyModule;
 import org.hesperides.batch.redis.legacy.entities.LegacyTemplate;
 import org.hesperides.batch.redis.legacy.events.LegacyInterface;
 import org.hesperides.domain.modules.ModuleCreatedEvent;
+import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
 import java.util.List;
@@ -33,8 +35,4 @@ public class LegacyModuleCreatedEvent implements LegacyInterface {
         return new ModuleCreatedEvent(module.toDomainModule(templates),user);
     }
 
-    @Override
-    public String getKeyString() {
-        return getKey().toString("module");
-    }
 }
