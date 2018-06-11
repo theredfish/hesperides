@@ -18,6 +18,11 @@ public class LegacyTemplate {
     Long versionId;
 
     public Template toDomainTemplate(TemplateContainer.Key key) {
+        if (rights == null) {
+            Template.Rights rights = new Template.Rights(new Template.FileRights(null, null, null), new Template.FileRights(null, null, null), new Template.FileRights(null, null, null));
+            return new Template(name, filename, location, content, rights, versionId, key);
+
+        }
         return new Template(name, filename, location, content, rights, versionId, key);
     }
 
