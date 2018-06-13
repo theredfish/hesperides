@@ -6,6 +6,7 @@ import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.jetbrains.annotations.Nullable;
 
 import javax.validation.constraints.NotNull;
 
@@ -21,7 +22,7 @@ public class TemplateIO {
     String location;
     @NotNull
     String content;
-    @NotNull
+    @Nullable
     RightsIO rights;
     @NotNull
     @SerializedName("version_id")

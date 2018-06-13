@@ -1,0 +1,12 @@
+---
+redis:
+  port: ${REDIS_PORT:58379}
+  host: ${REDIS_HOST:10.98.208.75}
+legacy.uri: ${LEGACY_HOST:localhost}:${LEGACY_PORT:8080}
+refonte.uri: ${REFONTE_HOST:localhost}:${REFONTE_PORT:8081}
+spring:
+  redis:
+    port: ${REDIS_PORT:58379}
+    host: ${REDIS_HOST:10.98.208.75}
+#hesperides.server.refonte.host: ${REFONTE_HOST:localhost}
+#hesperides.server.refonte.post: ${REFONTE_PORT:8081}

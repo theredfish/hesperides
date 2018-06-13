@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-
 @SpringBootApplication
 @EnableAutoConfiguration(
         exclude = {
@@ -32,5 +31,6 @@ public class HesperidesSpringApplication {
     public static void main(String[] args) {
         SpringApplication.run(HesperidesSpringApplication.class, args);
     }
+
 
 }
