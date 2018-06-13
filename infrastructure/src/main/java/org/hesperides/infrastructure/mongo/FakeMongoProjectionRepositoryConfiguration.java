@@ -26,6 +26,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.UUID;
 
@@ -33,6 +35,8 @@ import static org.hesperides.domain.Profiles.FAKE_MONGO;
 
 @Configuration
 @Profile(FAKE_MONGO)
+@EnableTransactionManagement
+@EnableMongoRepositories(basePackages = "org.hesperides.infrastructure.mongo")
 public class FakeMongoProjectionRepositoryConfiguration {
 
     private static final String MONGO_DB_NAME = "fake_database";

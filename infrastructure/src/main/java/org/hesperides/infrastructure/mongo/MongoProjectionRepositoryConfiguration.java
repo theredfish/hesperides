@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.Collections;
 
@@ -16,6 +18,8 @@ import static org.hesperides.domain.Profiles.MONGO;
 
 @Configuration
 @Profile(MONGO)
+@EnableTransactionManagement
+@EnableMongoRepositories(basePackages="org.hesperides.infrastructure.mongo")
 public class MongoProjectionRepositoryConfiguration {
 
     @Value("${hesperides.projection_repository.database}")
