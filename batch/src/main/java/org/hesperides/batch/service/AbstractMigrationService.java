@@ -39,18 +39,20 @@ public abstract class AbstractMigrationService {
     @Value("${refonte.uri}")
     static String REFONTE_URI = "http://localhost:8082";
 
+    ListOperations<String, LegacyEvent> listOperations;
+
     EmbeddedEventStore eventBus;
     RestTemplate legacyRestTemplate;
     RestTemplate refonteRestTemplate;
-    private RedisTemplate<String, LegacyEvent> redisTemplate;
     MongoTokenRepository mongoTokenRepository;
     Token token;
 
-    AbstractMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, RedisTemplate<String, LegacyEvent> redisTemplate, MongoTokenRepository mongoTokenRepository) {
+    AbstractMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate,
+                             ListOperations<String, LegacyEvent> listOperations, MongoTokenRepository mongoTokenRepository) {
         this.eventBus = eventBus;
         this.legacyRestTemplate = restTemplate;
         this.refonteRestTemplate = restTemplate;
-        this.redisTemplate = redisTemplate;
+        this.listOperations = listOperations;
         this.mongoTokenRepository = mongoTokenRepository;
         refonteRestTemplate.getInterceptors().add(new BasicAuthorizationInterceptor("tech", "password"));
     }
@@ -58,24 +60,21 @@ public abstract class AbstractMigrationService {
     public void migrate(List<Token> tokenList) {
         tokenList.forEach(token -> {
             this.token = token;
-            if (token.getStatus() == Token.WIP) {
-                processOps(token.getKey(), redisTemplate.opsForList());
-            } else {
-                log.info(token.getKey() + " already sucessfully converted");
-            }
+            processOps();
+
         });
     }
 
-    protected void processOps(String redisKey, ListOperations<String, LegacyEvent> redisOperations) {
-        List<GenericDomainEventMessage<Object>> eventsList = convertToDomainEvent(redisOperations.range(redisKey, 0, -1));
+    protected void processOps() {
+        List<GenericDomainEventMessage<Object>> eventsList = convertToDomainEvent(listOperations.range(token.getKey(), 0, -1));
         try {
-            log.info("Processing: " + redisKey + " (" + eventsList.size() + (eventsList.size() > 1 ? " events)" : " event)"));
+            log.info("Processing: " + token.getKey() + " (" + eventsList.size() + (eventsList.size() > 1 ? " events)" : " event)"));
             token.setLegacyEventCount(eventsList.size());
             eventBus.publish(eventsList);
             verify(token.getRefonteKey());
 
         } catch (ConcurrencyException e) {
-            log.info(e.getLocalizedMessage());
+            log.info("pouet");
             verify(token.getRefonteKey());
         } catch (Exception e) {
             log.severe(e.getMessage() + " c'est pour voir quand ça pète");
@@ -124,23 +123,28 @@ public abstract class AbstractMigrationService {
         String tempLegacyUri = legacyUri + "/templates/";
         String tempRefonteUri = refonteUri + "/templates/";
 
-        ResponseEntity<PartialTemplateIO[]> legacyResponse = legacyRestTemplate.getForEntity(tempLegacyUri, PartialTemplateIO[].class);
-        ResponseEntity<PartialTemplateIO[]> refonteResponse = legacyRestTemplate.getForEntity(tempRefonteUri, PartialTemplateIO[].class);
+        try {
+            ResponseEntity<PartialTemplateIO[]> legacyResponse = legacyRestTemplate.getForEntity(tempLegacyUri, PartialTemplateIO[].class);
+            ResponseEntity<PartialTemplateIO[]> refonteResponse = legacyRestTemplate.getForEntity(tempRefonteUri, PartialTemplateIO[].class);
+            PartialTemplateIO[] legacyArray = legacyResponse.getBody();
+            PartialTemplateIO[] refonteArray = refonteResponse.getBody();
 
-        PartialTemplateIO[] legacyArray = legacyResponse.getBody();
-        PartialTemplateIO[] refonteArray = refonteResponse.getBody();
-
-        Arrays.sort(legacyArray);
-        Arrays.sort(refonteArray);
+            Arrays.sort(legacyArray);
+            Arrays.sort(refonteArray);
 
 
-        if (Arrays.equals(legacyArray, refonteArray)) {
-            Arrays.stream(legacyArray).forEach(template -> checkTemplate(template.getName(), legacyUri, refonteUri));
-        } else {
-            log.severe("Liste des templates différente : " + tempLegacyUri);
-            this.token.setStatus(Token.KO);
+            if (Arrays.equals(legacyArray, refonteArray)) {
+                Arrays.stream(legacyArray).forEach(template -> checkTemplate(template.getName(), legacyUri, refonteUri));
+            } else {
+                log.severe("Liste des templates différente : " + tempLegacyUri);
+                this.token.setStatus(Token.KO);
 
+            }
+        }catch (Exception e){
+            log.info(e.getMessage());
         }
+
+
     }
 
     private void checkTemplate(String templateName, String legacyUri, String refonteUri) {

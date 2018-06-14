@@ -15,6 +15,7 @@ import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.TechnoCreatedEvent;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.client.RestTemplate;
 
@@ -41,8 +42,8 @@ public class TechnoMigrationService extends AbstractMigrationService {
 
     }
 
-    public TechnoMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, RedisTemplate<String, LegacyEvent> redisTemplate, MongoTokenRepository mongoTokenRepository) {
-        super(eventBus, restTemplate, redisTemplate, mongoTokenRepository);
+    public TechnoMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, ListOperations<String, LegacyEvent> listOperations, MongoTokenRepository mongoTokenRepository) {
+        super(eventBus, restTemplate, listOperations, mongoTokenRepository);
     }
 
 

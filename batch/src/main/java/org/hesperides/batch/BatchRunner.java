@@ -53,9 +53,9 @@ public class BatchRunner {
             List<Token> moduleList = new ArrayList<>();
             if (mongoTemplate.collectionExists("token")) {
                 log.info("Récupération de la liste de Tokens");
-                templateList = mongoTokenRepository.findAllByTypeAndStatusNot("techno",Token.OK);
+                templateList = mongoTokenRepository.findAllByTypeAndStatus("techno",Token.DELETED);
                 log.info(templateList.size()+" technos à migrer");
-                moduleList = mongoTokenRepository.findAllByTypeAndStatusNot("module",Token.OK);
+                moduleList = mongoTokenRepository.findAllByTypeAndStatus("module",Token.DELETED);
                 log.info(moduleList.size()+" modules à migrer");
 
             } else {
@@ -71,9 +71,9 @@ public class BatchRunner {
                 mongoTokenRepository.save(moduleList);
             }
 
-            AbstractMigrationService migrateTechno = new TechnoMigrationService(eventBus, restTemplate, legacyTemplate, mongoTokenRepository);
+            AbstractMigrationService migrateTechno = new TechnoMigrationService(eventBus, restTemplate, legacyTemplate.opsForList(), mongoTokenRepository);
             migrateTechno.migrate(templateList);
-            AbstractMigrationService migrateModule = new ModuleMigrationService(eventBus, restTemplate, legacyTemplate, mongoTokenRepository);
+            AbstractMigrationService migrateModule = new ModuleMigrationService(eventBus, restTemplate,  legacyTemplate.opsForList(), mongoTokenRepository);
             migrateModule.migrate(moduleList);
 //            AbstractMigrationService migratePlatform = new PlatformMigrationService();
 //            migratePlatform.migrate(legacyTemplate,eventBus);

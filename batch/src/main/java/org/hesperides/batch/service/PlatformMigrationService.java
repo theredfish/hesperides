@@ -4,6 +4,7 @@ import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.hesperides.batch.token.MongoTokenRepository;
 import org.hesperides.batch.legacy.entities.LegacyEvent;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,10 +20,10 @@ public class PlatformMigrationService extends AbstractMigrationService {
 
     }
 
-
-    public PlatformMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, RedisTemplate<String, LegacyEvent> redisTemplate, MongoTokenRepository mongoTokenRepository) {
-        super(eventBus, restTemplate, redisTemplate, mongoTokenRepository);
+    PlatformMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, ListOperations<String, LegacyEvent> listOperations, MongoTokenRepository mongoTokenRepository) {
+        super(eventBus, restTemplate, listOperations, mongoTokenRepository);
     }
+
 
     @Override
     void verify(TemplateContainer.Key key) {
