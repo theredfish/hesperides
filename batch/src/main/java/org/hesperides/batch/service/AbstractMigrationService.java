@@ -2,6 +2,7 @@ package org.hesperides.batch;
 
 import com.google.gson.Gson;
 import lombok.extern.java.Log;
+import org.axonframework.commandhandling.model.ConcurrencyException;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
@@ -36,14 +37,14 @@ abstract class AbstractMigrationService {
     @Value("${refonte.uri}")
     static String REFONTE_URI = "http://localhost:8082";
 
-    protected EmbeddedEventStore eventBus;
+    EmbeddedEventStore eventBus;
     protected RestTemplate legacyRestTemplate;
     protected RestTemplate refonteRestTemplate;
     protected RedisTemplate<String, LegacyEvent> redisTemplate;
     protected MongoTokenRepository mongoTokenRepository;
     Token token;
 
-    public AbstractMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, RedisTemplate<String, LegacyEvent> redisTemplate,MongoTokenRepository mongoTokenRepository) {
+    public AbstractMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, RedisTemplate<String, LegacyEvent> redisTemplate, MongoTokenRepository mongoTokenRepository) {
         this.eventBus = eventBus;
         this.legacyRestTemplate = restTemplate;
         this.refonteRestTemplate = restTemplate;
@@ -55,7 +56,7 @@ abstract class AbstractMigrationService {
     void migrate(List<Token> tokenList) {
         tokenList.forEach(token -> {
             this.token = token;
-            if (token.getStatus() == 0) {
+            if (token.getStatus() == Token.WIP) {
                 processOps(token.getKey(), redisTemplate.opsForList());
             } else {
                 log.info(token.getKey() + " already sucessfully converted");
@@ -64,17 +65,20 @@ abstract class AbstractMigrationService {
     }
 
     protected void processOps(String redisKey, ListOperations<String, LegacyEvent> redisOperations) {
-        List<GenericDomainEventMessage<Object>> eventsList = convertToDomainEvent(redisOperations.range(redisKey,0,-1));
+        List<GenericDomainEventMessage<Object>> eventsList = convertToDomainEvent(redisOperations.range(redisKey, 0, -1));
         try {
-                log.info("Processing: " + redisKey + " (" + eventsList.size() + (eventsList.size() > 1 ? " events)" : " event)"));
-                token.setLegacyEventCount(eventsList.size());
-                eventBus.publish(eventsList);
-                verify(token.getRefonteKey());
+            log.info("Processing: " + redisKey + " (" + eventsList.size() + (eventsList.size() > 1 ? " events)" : " event)"));
+            token.setLegacyEventCount(eventsList.size());
+            eventBus.publish(eventsList);
+            verify(token.getRefonteKey());
 
+        } catch (ConcurrencyException e) {
+            log.info(e.getLocalizedMessage());
+            verify(token.getRefonteKey());
         } catch (Exception e) {
             log.severe(e.getMessage() + " c'est pour voir quand ça pète");
             token.setStatus(Token.DELETED);
-        }finally {
+        } finally {
             mongoTokenRepository.save(token);
         }
     }
@@ -112,8 +116,7 @@ abstract class AbstractMigrationService {
         return result;
     }
 
-    protected void verify(TemplateContainer.Key key) {
-    }
+    abstract void verify(TemplateContainer.Key key);
 
     void checkTemplatesList(String legacyUri, String refonteUri) {
         String tempLegacyUri = legacyUri + "/templates/";
@@ -165,8 +168,7 @@ abstract class AbstractMigrationService {
         if (!refonteTemplate.equals(legacyTemplate)) {
             log.severe("Template " + templateName + " différent : " + tempLegacyUri);
             this.token.setStatus(Token.KO);
-        }
-        else {
+        } else {
             this.token.setStatus(Token.OK);
         }
     }

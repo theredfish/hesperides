@@ -1,6 +1,7 @@
 package org.hesperides.batch;
 
 import lombok.extern.java.Log;
+import org.axonframework.commandhandling.model.ConcurrencyException;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.hesperides.batch.redis.legacy.entities.LegacyEvent;
@@ -54,7 +55,11 @@ public class ModuleMigrationService extends AbstractMigrationService {
                 eventBus.publish(eventsList);
                 verify(token.getRefonteKey());
 
-            } catch (Exception e) {
+            }catch (ConcurrencyException e){
+                log.info(e.getLocalizedMessage());
+                verify(token.getRefonteKey());
+            }
+            catch (Exception e) {
                 log.severe(e.getMessage() + " c'est pour voir quand ça pète");
                 token.setStatus(Token.DELETED);
             } finally {
