@@ -1,6 +1,8 @@
 package org.hesperides.batch.service;
 
 import lombok.extern.java.Log;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.axonframework.commandhandling.model.ConcurrencyException;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
@@ -13,6 +15,7 @@ import org.hesperides.presentation.io.ModuleIO;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -40,26 +43,25 @@ public class ModuleMigrationService extends AbstractMigrationService {
 
     }
 
-    public ModuleMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, RedisTemplate<String, LegacyEvent> redisTemplate, MongoTokenRepository mongoTokenRepository) {
-        super(eventBus, restTemplate, redisTemplate, mongoTokenRepository);
+    public ModuleMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, ListOperations<String, LegacyEvent> listOperations, MongoTokenRepository mongoTokenRepository) {
+        super(eventBus, restTemplate, listOperations, mongoTokenRepository);
     }
 
-
     @Override
-    protected void processOps(String redisKey, ListOperations<String, LegacyEvent> redisOperations) {
+    protected void processOps() {
 
-        if (checkModuleCreatedFirst(redisKey, redisOperations.index(redisKey, 0))) {
-            List<GenericDomainEventMessage<Object>> eventsList = convertToDomainEvent(redisOperations.range(redisKey, 0, -1));
+        if (checkModuleCreatedFirst(token.getKey(), listOperations.index(token.getKey(), 0))) {
+            List<GenericDomainEventMessage<Object>> eventsList = convertToDomainEvent(listOperations.range(token.getKey(), 0, -1));
             try {
-                log.info("Processing: " + redisKey + " (" + eventsList.size() + (eventsList.size() > 1 ? " events)" : " event)"));
+                log.info("Processing: " + token.getKey() + " (" + eventsList.size() + (eventsList.size() > 1 ? " events)" : " event)"));
+                token.setLegacyEventCount(eventsList.size());
                 eventBus.publish(eventsList);
                 verify(token.getRefonteKey());
 
-            }catch (ConcurrencyException e){
-                log.info(e.getLocalizedMessage());
+            } catch (ConcurrencyException e) {
+                log.info("pouet");
                 verify(token.getRefonteKey());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.severe(e.getMessage() + " c'est pour voir quand ça pète");
                 token.setStatus(Token.DELETED);
             } finally {
@@ -68,11 +70,13 @@ public class ModuleMigrationService extends AbstractMigrationService {
         }
     }
 
-    Boolean checkModuleCreatedFirst(String key, LegacyEvent event) {
+    //    @Before("execution(* org.hesperides.batch.service.ModuleMigrationService.processOps(..))")
+    public Boolean checkModuleCreatedFirst(String key, LegacyEvent event) {
         Boolean ret = true;
         if (!"com.vsct.dt.hesperides.templating.modules.ModuleCreatedEvent".equals(event.getEventType())) {
             log.severe(key);
             ret = false;
+            token.setStatus(Token.MODULE_ERRORED);
         }
         return ret;
     }
@@ -87,9 +91,17 @@ public class ModuleMigrationService extends AbstractMigrationService {
             ResponseEntity<ModuleIO> ref = refonteRestTemplate.getForEntity(refonteUri, ModuleIO.class);
             if (ref.getBody().equals(leg.getBody())) {
                 checkTemplatesList(legacyUri, refonteUri);
+            } else {
+                token.setStatus(Token.KO);
             }
-        } catch (Exception e) {
-
+        }
+        catch (HttpClientErrorException e) {
+            if (e.getRawStatusCode() == 404) {
+                token.setStatus(Token.DELETED);
+            }
+        }
+        catch (Exception e){
+            log.info(e.getMessage());
         }
     }
 

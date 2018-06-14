@@ -14,6 +14,7 @@ public class Token {
     public static final int OK = 1;
     public static final int DELETED = 2;
     public static final int KO = 3;
+    public static final int MODULE_ERRORED = 4;
 
     @Id
     private String key;
