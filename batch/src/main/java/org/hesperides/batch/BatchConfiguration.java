@@ -1,7 +1,7 @@
 package org.hesperides.batch;
 
 import lombok.extern.java.Log;
-import org.hesperides.batch.redis.legacy.entities.LegacyEvent;
+import org.hesperides.batch.legacy.entities.LegacyEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @EnableTransactionManagement
 @EnableMongoRepositories(basePackages = "org.hesperides.batch")
 @Profile("batch")
-public class Config {
+public class BatchConfiguration {
     @Value("${spring.redis.port}")
     private String redisPort;
     @Value("${spring.redis.host}")
@@ -58,19 +58,6 @@ public class Config {
         return template;
     }
 
-//    @Bean
-//    RedisTemplate<String, String> stringTemplate(RedisConnectionFactory redisConnectionFactory) {
-//        RedisTemplate<String, String> template = new RedisTemplate<>();
-//        template.setConnectionFactory(redisConnectionFactory);
-//
-//        RedisSerializer wtf = new StringRedisSerializer();
-//        template.setKeySerializer(wtf);
-//        template.setHashKeySerializer(wtf);
-//        template.setValueSerializer(wtf);
-//        template.setHashValueSerializer(wtf);
-//        return template;
-//    }
-
     @Bean
     RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
@@ -80,7 +67,6 @@ public class Config {
 
         converters.add(new GsonHttpMessageConverter());
         restTemplate.setMessageConverters(converters);
-
         return restTemplate;
     }
 }

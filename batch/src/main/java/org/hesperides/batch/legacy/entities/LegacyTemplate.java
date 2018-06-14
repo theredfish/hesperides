@@ -1,4 +1,4 @@
-package org.hesperides.batch.redis.legacy.entities;
+package org.hesperides.batch.legacy.entities;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;

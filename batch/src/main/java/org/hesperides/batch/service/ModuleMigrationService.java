@@ -1,22 +1,22 @@
-package org.hesperides.batch;
+package org.hesperides.batch.service;
 
 import lombok.extern.java.Log;
 import org.axonframework.commandhandling.model.ConcurrencyException;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
-import org.hesperides.batch.redis.legacy.entities.LegacyEvent;
-import org.hesperides.batch.redis.legacy.events.modules.*;
+import org.hesperides.batch.token.MongoTokenRepository;
+import org.hesperides.batch.token.Token;
+import org.hesperides.batch.legacy.entities.LegacyEvent;
+import org.hesperides.batch.legacy.events.modules.*;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Log
 public class ModuleMigrationService extends AbstractMigrationService {

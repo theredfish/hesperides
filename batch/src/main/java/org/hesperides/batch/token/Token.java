@@ -1,4 +1,4 @@
-package org.hesperides.batch;
+package org.hesperides.batch.token;
 
 import lombok.Data;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;

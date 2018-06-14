@@ -1,7 +1,7 @@
-package org.hesperides.batch.redis.legacy.events.modules;
+package org.hesperides.batch.legacy.events.modules;
 
 import lombok.Value;
-import org.hesperides.batch.redis.legacy.events.LegacyInterface;
+import org.hesperides.batch.legacy.events.LegacyInterface;
 import org.hesperides.domain.modules.TemplateDeletedEvent;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;

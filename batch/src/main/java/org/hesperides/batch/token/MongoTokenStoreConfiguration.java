@@ -1,4 +1,4 @@
-package org.hesperides.batch;
+package org.hesperides.batch.token;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;

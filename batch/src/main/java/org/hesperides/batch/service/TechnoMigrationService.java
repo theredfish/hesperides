@@ -1,28 +1,27 @@
-package org.hesperides.batch;
+package org.hesperides.batch.service;
 
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.messaging.MetaData;
-import org.hesperides.batch.redis.legacy.entities.LegacyEvent;
-import org.hesperides.batch.redis.legacy.events.LegacyInterface;
-import org.hesperides.batch.redis.legacy.events.technos.LegacyTechnoDeletedEvent;
-import org.hesperides.batch.redis.legacy.events.technos.LegacyTechnoTemplateCreatedEvent;
-import org.hesperides.batch.redis.legacy.events.technos.LegacyTechnoTemplateDeletedEvent;
-import org.hesperides.batch.redis.legacy.events.technos.LegacyTechnoTemplateUpdatedEvent;
+import org.hesperides.batch.token.MongoTokenRepository;
+import org.hesperides.batch.legacy.entities.LegacyEvent;
+import org.hesperides.batch.legacy.events.LegacyInterface;
+import org.hesperides.batch.legacy.events.technos.LegacyTechnoDeletedEvent;
+import org.hesperides.batch.legacy.events.technos.LegacyTechnoTemplateCreatedEvent;
+import org.hesperides.batch.legacy.events.technos.LegacyTechnoTemplateDeletedEvent;
+import org.hesperides.batch.legacy.events.technos.LegacyTechnoTemplateUpdatedEvent;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.TechnoCreatedEvent;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -88,13 +87,5 @@ public class TechnoMigrationService extends AbstractMigrationService {
         final String refonteUri = REFONTE_URI + key.getURI("templates/package");
 
         checkTemplatesList(legacyUri, refonteUri);
-//
-//        ResponseEntity<TechnoIO> leg = legacyRestTemplate.getForEntity(legacyUri, TechnoIO.class);
-//        ResponseEntity<TechnoIO> ref = refonteRestTemplate.getForEntity(refonteUri, TechnoIO.class);
-//
-//        if (ref.getBody().equals(leg.getBody())) {
-//            checkTemplatesList(legacyUri, refonteUri);
-//        }
-
     }
 }

@@ -1,4 +1,4 @@
-package org.hesperides.batch.redis.legacy.entities;
+package org.hesperides.batch.legacy.entities;
 
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;

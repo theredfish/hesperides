@@ -1,8 +1,8 @@
-package org.hesperides.batch.redis.legacy.events.modules;
+package org.hesperides.batch.legacy.events.modules;
 
 import com.google.gson.annotations.SerializedName;
-import org.hesperides.batch.redis.legacy.entities.LegacyModule;
-import org.hesperides.batch.redis.legacy.events.LegacyInterface;
+import org.hesperides.batch.legacy.entities.LegacyModule;
+import org.hesperides.batch.legacy.events.LegacyInterface;
 import org.hesperides.domain.modules.ModuleTechnosUpdatedEvent;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;

@@ -1,4 +1,4 @@
-package org.hesperides.batch;
+package org.hesperides.batch.service;
 
 import com.google.gson.Gson;
 import lombok.extern.java.Log;
@@ -7,8 +7,10 @@ import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.messaging.MetaData;
-import org.hesperides.batch.redis.legacy.entities.LegacyEvent;
-import org.hesperides.batch.redis.legacy.events.LegacyInterface;
+import org.hesperides.batch.token.MongoTokenRepository;
+import org.hesperides.batch.token.Token;
+import org.hesperides.batch.legacy.entities.LegacyEvent;
+import org.hesperides.batch.legacy.events.LegacyInterface;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.PartialTemplateIO;
@@ -27,7 +29,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 @Log
-abstract class AbstractMigrationService {
+public abstract class AbstractMigrationService {
     static String AGGREGATE_TYPE;
     static String PATTERN;
     static Map<String, Type> LEGACY_EVENTS_DICTIONARY;
@@ -38,13 +40,13 @@ abstract class AbstractMigrationService {
     static String REFONTE_URI = "http://localhost:8082";
 
     EmbeddedEventStore eventBus;
-    protected RestTemplate legacyRestTemplate;
-    protected RestTemplate refonteRestTemplate;
-    protected RedisTemplate<String, LegacyEvent> redisTemplate;
-    protected MongoTokenRepository mongoTokenRepository;
+    RestTemplate legacyRestTemplate;
+    RestTemplate refonteRestTemplate;
+    private RedisTemplate<String, LegacyEvent> redisTemplate;
+    MongoTokenRepository mongoTokenRepository;
     Token token;
 
-    public AbstractMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, RedisTemplate<String, LegacyEvent> redisTemplate, MongoTokenRepository mongoTokenRepository) {
+    AbstractMigrationService(EmbeddedEventStore eventBus, RestTemplate restTemplate, RedisTemplate<String, LegacyEvent> redisTemplate, MongoTokenRepository mongoTokenRepository) {
         this.eventBus = eventBus;
         this.legacyRestTemplate = restTemplate;
         this.refonteRestTemplate = restTemplate;
@@ -53,7 +55,7 @@ abstract class AbstractMigrationService {
         refonteRestTemplate.getInterceptors().add(new BasicAuthorizationInterceptor("tech", "password"));
     }
 
-    void migrate(List<Token> tokenList) {
+    public void migrate(List<Token> tokenList) {
         tokenList.forEach(token -> {
             this.token = token;
             if (token.getStatus() == Token.WIP) {
@@ -103,7 +105,7 @@ abstract class AbstractMigrationService {
         return domainEventMessages;
     }
 
-    protected LegacyInterface convertToLegacyEvent(LegacyEvent event) {
+    LegacyInterface convertToLegacyEvent(LegacyEvent event) {
         Gson gson = new Gson();
         String eventType = event.getEventType();
         LegacyInterface result = null;
@@ -141,7 +143,10 @@ abstract class AbstractMigrationService {
         }
     }
 
-    void checkTemplate(String templateName, String legacyUri, String refonteUri) {
+    private void checkTemplate(String templateName, String legacyUri, String refonteUri) {
+        if (token.getStatus() == Token.KO)
+            return;
+
         String tempLegacyUri = legacyUri + "/templates/" + templateName;
         String tempRefonteUri = refonteUri + "/templates/" + templateName;
 

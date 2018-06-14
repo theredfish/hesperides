@@ -3,7 +3,12 @@ package org.hesperides.batch;
 
 import lombok.extern.java.Log;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
-import org.hesperides.batch.redis.legacy.entities.LegacyEvent;
+import org.hesperides.batch.legacy.entities.LegacyEvent;
+import org.hesperides.batch.service.AbstractMigrationService;
+import org.hesperides.batch.service.ModuleMigrationService;
+import org.hesperides.batch.service.TechnoMigrationService;
+import org.hesperides.batch.token.MongoTokenRepository;
+import org.hesperides.batch.token.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -47,12 +52,14 @@ public class BatchRunner {
             List<Token> templateList = new ArrayList<>();
             List<Token> moduleList = new ArrayList<>();
             if (mongoTemplate.collectionExists("token")) {
-                log.info("Récupération de le la liste de Tokens");
-                templateList = mongoTokenRepository.findAllByTypeAndStatus("techno",Token.WIP);
-                moduleList = mongoTokenRepository.findAllByTypeAndStatus("module",Token.WIP);
+                log.info("Récupération de la liste de Tokens");
+                templateList = mongoTokenRepository.findAllByTypeAndStatusNot("techno",Token.OK);
+                log.info(templateList.size()+" technos à migrer");
+                moduleList = mongoTokenRepository.findAllByTypeAndStatusNot("module",Token.OK);
+                log.info(moduleList.size()+" modules à migrer");
 
             } else {
-                log.info("Création de le la liste de Tokens");
+                log.info("Création de la liste de Tokens");
                 Set<String> legacySet = legacyTemplate.keys("template*");
                 List<Token> finalTemplateList = templateList;
                 legacySet.forEach(item -> finalTemplateList.add(new Token(item, "techno")));

@@ -1,4 +1,4 @@
-package org.hesperides.batch;
+package org.hesperides.batch.token;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -14,4 +14,5 @@ public interface MongoTokenRepository extends MongoRepository<Token,String> {
     Token findByKey(String key);
 //    List<Token>findAllByTypeAndByStatus(String type,int status);
     List<Token>findAllByTypeAndStatus(String type,int status);
+    List<Token>findAllByTypeAndStatusNot(String type,int status);
 }

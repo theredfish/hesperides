@@ -1,6 +1,6 @@
-package org.hesperides.batch.redis.legacy.events.technos;
+package org.hesperides.batch.legacy.events.technos;
 
-import org.hesperides.batch.redis.legacy.events.LegacyInterface;
+import org.hesperides.batch.legacy.events.LegacyInterface;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.TechnoDeletedEvent;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
