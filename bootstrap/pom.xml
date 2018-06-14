@@ -25,7 +25,6 @@
         <dependency>
             <groupId>org.hesperides</groupId>
             <artifactId>batch</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <!-- Spring Boot dependencies -->
         <dependency>

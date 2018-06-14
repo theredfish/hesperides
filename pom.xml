@@ -94,6 +94,11 @@
             </dependency>
             <dependency>
                 <groupId>org.hesperides</groupId>
+                <artifactId>batch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hesperides</groupId>
                 <artifactId>bootstrap</artifactId>
                 <version>${project.version}</version>
             </dependency>

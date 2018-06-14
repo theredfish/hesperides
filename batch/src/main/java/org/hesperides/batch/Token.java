@@ -32,17 +32,17 @@ public class Token {
         this.status = WIP;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public void setRefonteEventCount(int refonteEventCount) {
-        this.refonteEventCount = refonteEventCount;
-    }
-
-    public void setLegacyEventCount(int legacyEventCount){
-        this.legacyEventCount =legacyEventCount;
-        setStatus(0);
+//    public void setStatus(int status) {
+//        this.status = status;
+//    }
+//
+//    public void setRefonteEventCount(int refonteEventCount) {
+//        this.refonteEventCount = refonteEventCount;
+//    }
+//
+//    public void setLegacyEventCount(int legacyEventCount){
+//        this.legacyEventCount =legacyEventCount;
+//        setStatus(0);
     }
 
 
