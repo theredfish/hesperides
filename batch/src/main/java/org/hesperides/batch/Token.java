@@ -43,7 +43,7 @@ public class Token {
 //    public void setLegacyEventCount(int legacyEventCount){
 //        this.legacyEventCount =legacyEventCount;
 //        setStatus(0);
-    }
+//    }
 
 
 }
