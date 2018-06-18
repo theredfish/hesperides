@@ -26,9 +26,6 @@
         <module>domain</module>
         <module>infrastructure</module>
         <module>bootstrap</module>
-        <module>tests/bdd</module>
-        <module>tests/integration</module>
-        <module>tests/tech</module>
     </modules>
 
     <properties>
