@@ -10,6 +10,7 @@ import org.hesperides.batch.service.TechnoMigrationService;
 import org.hesperides.batch.token.MongoTokenRepository;
 import org.hesperides.batch.token.Token;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
@@ -27,6 +28,8 @@ import java.util.Set;
 @Profile("batch")
 public class BatchRunner {
 
+    @Value("#{'${hesperides.batch.migration.resources}'.split(',')}")
+    List<String> resources;
 
     private final EmbeddedEventStore eventBus;
     private final MongoTokenRepository mongoTokenRepository;
@@ -53,10 +56,10 @@ public class BatchRunner {
             List<Token> moduleList = new ArrayList<>();
             if (mongoTemplate.collectionExists("token")) {
                 log.info("Récupération de la liste de Tokens");
-                templateList = mongoTokenRepository.findAllByTypeAndStatus("techno",Token.DELETED);
-                log.info(templateList.size()+" technos à migrer");
-                moduleList = mongoTokenRepository.findAllByTypeAndStatus("module",Token.DELETED);
-                log.info(moduleList.size()+" modules à migrer");
+                templateList = mongoTokenRepository.findAllByTypeAndStatus("techno", Token.DELETED);
+                log.info(templateList.size() + " technos à migrer");
+                moduleList = mongoTokenRepository.findAllByTypeAndStatus("module", Token.DELETED);
+                log.info(moduleList.size() + " modules à migrer");
 
             } else {
                 log.info("Création de la liste de Tokens");
@@ -71,12 +74,21 @@ public class BatchRunner {
                 mongoTokenRepository.save(moduleList);
             }
 
-            AbstractMigrationService migrateTechno = new TechnoMigrationService(eventBus, restTemplate, legacyTemplate.opsForList(), mongoTokenRepository);
-            migrateTechno.migrate(templateList);
-            AbstractMigrationService migrateModule = new ModuleMigrationService(eventBus, restTemplate,  legacyTemplate.opsForList(), mongoTokenRepository);
-            migrateModule.migrate(moduleList);
-//            AbstractMigrationService migratePlatform = new PlatformMigrationService();
-//            migratePlatform.migrate(legacyTemplate,eventBus);
+            if (this.resources.contains("technos")) {
+                log.info("Migrate technos");
+                AbstractMigrationService migrateTechno = new TechnoMigrationService(eventBus, restTemplate, legacyTemplate.opsForList(), mongoTokenRepository);
+                migrateTechno.migrate(templateList);
+            }
+            if (this.resources.contains("modules")) {
+                log.info("Migrate modules");
+                AbstractMigrationService migrateModule = new ModuleMigrationService(eventBus, restTemplate, legacyTemplate.opsForList(), mongoTokenRepository);
+                migrateModule.migrate(moduleList);
+            }
+//            if (this.resources.contains("platforms")) {
+//                AbstractMigrationService migratePlatform = new PlatformMigrationService(eventBus, restTemplate, legacyTemplate.opsForList(), mongoTokenRepository);
+//                migratePlatform.migrate(legacyTemplate, eventBus);
+//            }
+            log.info("finished");
 
         });
     }
