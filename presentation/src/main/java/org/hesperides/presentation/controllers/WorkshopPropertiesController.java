@@ -40,21 +40,13 @@ public class WorkshopPropertiesController extends AbstractController {
 
     @GetMapping("/{key}")
     public ResponseEntity<WorkshopPropertyOutput> getWorkshopProperty(@PathVariable("key") final String workshopPropertyKey) {
-        WorkshopPropertyView workshopPropertyView = workshopPropertyUseCases.getWorkshopProperty(workshopPropertyKey);
-        WorkshopPropertyOutput workshopPropertyOutput = WorkshopPropertyOutput.fromWorkshopPropertyView(workshopPropertyView);
-        return ResponseEntity.ok(workshopPropertyOutput);
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @PutMapping
     public ResponseEntity<WorkshopPropertyOutput> updateWorkshopProperty(Authentication authentication,
                                                                          @Valid @RequestBody final WorkshopPropertyInput workshopPropertyInput) {
 
-        WorkshopProperty workshopProperty = workshopPropertyInput.toDomainInstance();
-        workshopPropertyUseCases.updateWorkshopProperty(workshopProperty, fromAuthentication(authentication));
-
-        WorkshopPropertyView workshopPropertyView = workshopPropertyUseCases.getWorkshopProperty(workshopPropertyInput.getKey());
-        WorkshopPropertyOutput workshopPropertyOutput = WorkshopPropertyOutput.fromWorkshopPropertyView(workshopPropertyView);
-
-        return ResponseEntity.ok(workshopPropertyOutput);
+        throw new UnsupportedOperationException("Not implemented");
     }
 }

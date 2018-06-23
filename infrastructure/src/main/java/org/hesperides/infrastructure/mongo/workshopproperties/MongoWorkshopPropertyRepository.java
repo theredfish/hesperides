@@ -14,6 +14,4 @@ import static org.hesperides.domain.framework.Profiles.MONGO;
 public interface MongoWorkshopPropertyRepository extends MongoRepository<WorkshopPropertyDocument, String> {
 
     Optional<WorkshopPropertyDocument> findOptionalByKey(String key);
-
-    WorkshopPropertyDocument findByKey(String key);
 }

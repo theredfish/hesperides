@@ -27,9 +27,7 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.CreateWorkshopPropertyCommand;
-import org.hesperides.domain.UpdateWorkshopPropertyCommand;
 import org.hesperides.domain.WorkshopPropertyCreatedEvent;
-import org.hesperides.domain.WorkshopPropertyUpdatedEvent;
 import org.hesperides.domain.workshopproperties.entities.WorkshopProperty;
 
 import java.io.Serializable;
@@ -56,27 +54,9 @@ public class WorkshopPropertyAggregate implements Serializable {
         apply(new WorkshopPropertyCreatedEvent(processedWorkshopProperty, command.getUser()));
     }
 
-    @CommandHandler
-    public void handle(UpdateWorkshopPropertyCommand command) {
-
-        WorkshopProperty processedWorkshopProperty = new WorkshopProperty(
-                command.getWorkshopProperty().getKey(),
-                command.getWorkshopProperty().getValue(),
-                command.getWorkshopProperty().getKey() + command.getWorkshopProperty().getValue()
-        );
-
-        apply(new WorkshopPropertyUpdatedEvent(processedWorkshopProperty, command.getUser()));
-    }
-
     @EventSourcingHandler
     public void on(WorkshopPropertyCreatedEvent event) {
         this.key = event.getWorkshopProperty().getKey();
         log.debug("Workshop property created");
-    }
-
-    @EventSourcingHandler
-    public void on(WorkshopPropertyUpdatedEvent event) {
-        this.key = event.getWorkshopProperty().getKey();
-        log.debug("Workshop property updated");
     }
 }
