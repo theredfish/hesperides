@@ -59,6 +59,12 @@ public class WorkshopPropertyUseCases {
     }
 
     public void updateWorkshopProperty(WorkshopProperty workshopProperty, User user) {
-        throw new UnsupportedOperationException("Not implemented");
+        String workshopKey = workshopProperty.getKey();
+
+        if(!queries.workshopPropertyExists(workshopKey)) {
+            throw new WorkshopPropertyNotFoundException(workshopKey);
+        }
+
+        commands.updateWorkshopProperty(workshopProperty, user);
     }
 }

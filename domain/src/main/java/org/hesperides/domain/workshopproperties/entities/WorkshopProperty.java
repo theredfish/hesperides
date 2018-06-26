@@ -7,4 +7,12 @@ public class WorkshopProperty {
     String key;
     String value;
     String keyValue;
+
+    public WorkshopProperty concatKeyValue() {
+        return new WorkshopProperty(
+                this.key,
+                this.value,
+                this.key+this.value
+        );
+    }
 }

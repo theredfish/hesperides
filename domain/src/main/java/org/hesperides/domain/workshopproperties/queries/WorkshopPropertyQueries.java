@@ -24,9 +24,11 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
 import org.hesperides.domain.workshopproperties.GetWorkshopPropertyByKeyQuery;
 import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+@Component
 public class WorkshopPropertyQueries extends Queries {
 
     protected WorkshopPropertyQueries(QueryGateway queryGateway) {

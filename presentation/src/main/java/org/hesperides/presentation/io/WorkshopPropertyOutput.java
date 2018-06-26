@@ -8,7 +8,6 @@ import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyVi
 public class WorkshopPropertyOutput {
     String key;
     String value;
-    @SerializedName("key_value")
     String keyValue;
 
     public static WorkshopPropertyOutput fromWorkshopPropertyView(WorkshopPropertyView workshopPropertyView) {

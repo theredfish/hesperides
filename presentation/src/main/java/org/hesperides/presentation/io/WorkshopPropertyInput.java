@@ -12,10 +12,10 @@ public class WorkshopPropertyInput {
     @NotNull
     @NotEmpty
     String key;
+
     @NotNull
     @NotEmpty
     String value;
-
     public WorkshopProperty toDomainInstance() {
         return new WorkshopProperty(key, value, null);
     }
