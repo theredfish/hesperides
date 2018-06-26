@@ -1,6 +1,9 @@
 package org.hesperides.presentation.controllers;
 
 import org.hesperides.application.workshopproperties.WorkshopPropertyUseCases;
+import org.hesperides.domain.security.User;
+import org.hesperides.domain.workshopproperties.entities.WorkshopProperty;
+import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.hesperides.presentation.io.WorkshopPropertyInput;
 import org.hesperides.presentation.io.WorkshopPropertyOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +28,19 @@ public class WorkshopPropertiesController extends AbstractController {
     public ResponseEntity<WorkshopPropertyOutput> createWorkshopProperty(Authentication authentication,
                                                                          @Valid @RequestBody final WorkshopPropertyInput workshopPropertyInput) {
 
-        throw new UnsupportedOperationException("Not implemented");
+        // input to domain object
+        WorkshopProperty workshopProperty = workshopPropertyInput.toDomainInstance();
+
+        // run the command through use case and return the key
+        String key = workshopPropertyUseCases.createWorkshopProperty(workshopProperty, User.fromAuthentication(authentication));
+
+        // then create the view with the given key
+        WorkshopPropertyView workshopPropertyView = workshopPropertyUseCases.getWorkshopPropertyView(key);
+
+        // create the output result
+        WorkshopPropertyOutput result = WorkshopPropertyOutput.fromWorkshopPropertyView(workshopPropertyView);
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{key}")

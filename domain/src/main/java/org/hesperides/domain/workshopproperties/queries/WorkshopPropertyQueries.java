@@ -22,16 +22,33 @@ package org.hesperides.domain.workshopproperties.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
-import org.springframework.stereotype.Component;
+import org.hesperides.domain.workshopproperties.GetWorkshopPropertyByKeyQuery;
+import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
 
-@Component
+import java.util.Optional;
+
 public class WorkshopPropertyQueries extends Queries {
 
     protected WorkshopPropertyQueries(QueryGateway queryGateway) {
         super(queryGateway);
     }
 
+    /**
+     * Check if a workshop property exists in the database for the given key
+     * @param workshopPropertyKey
+     * @return true if the workshop property view exists for the given key, else false
+     */
     public boolean workshopPropertyExists(String workshopPropertyKey) {
-        throw new UnsupportedOperationException("Not implemented");
+        Optional<WorkshopPropertyView> workshopPropertyView = querySyncOptional(new GetWorkshopPropertyByKeyQuery(workshopPropertyKey), WorkshopPropertyView.class);
+        return workshopPropertyView.isPresent();
+    }
+
+    /**
+     * Get the view for a given workshop property key
+     * @param workshopPropertyKey
+     * @return a workshop property view
+     */
+    public Optional<WorkshopPropertyView> getOptionalWorkshopProperty(String workshopPropertyKey) {
+        return querySyncOptional(new GetWorkshopPropertyByKeyQuery(workshopPropertyKey), WorkshopPropertyView.class);
     }
 }
